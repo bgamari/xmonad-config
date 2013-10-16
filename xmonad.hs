@@ -5,6 +5,9 @@ import System.Exit
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
+import XMonad.Util.Run
+import XMonad.Hooks.ManageDocks (manageDocks, avoidStruts)
+import XMonad.Hooks.DynamicLog
 import XMonad.Actions.DynamicWorkspaces
 import XMonad.Actions.CopyWindow (copy)
 import XMonad.Prompt
@@ -18,16 +21,24 @@ myBorderWidth   = 1
  
 myModMask       = mod4Mask
  
-myWorkspaces    = ["1","2","3","4","5","6","7","mail","irc"]
+myWorkspaces    = ["1","2","3","4","mail","irc"]
  
 myNormalBorderColor  = "#dddddd"
 myFocusedBorderColor = "#ff0000"
+       
+myXPConfig :: XPConfig              
+myXPConfig = def { font = "xft:Ubuntu Mono-10" }
  
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
  
     -- launch a terminal
-    [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
- 
+    [ ((modm              , xK_F1    ), spawn $ XMonad.terminal conf)
+
+    -- launch browser
+    , ((modm              , xK_F2    ), spawn "chromium-browser")
+    
+    , ((modm              , xK_F5    ), spawn "emacsclient -c ~")
+
     -- launch dmenu
     , ((modm,               xK_p     ), spawn "exe=`dmenu_path | dmenu` && eval \"exec $exe\"")
  
@@ -91,11 +102,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Remove workspace
     , ((modm .|. shiftMask, xK_BackSpace), removeWorkspace)
     -- Select workspace
-    , ((modm .|. shiftMask, xK_v        ), selectWorkspace defaultXPConfig)
+    , ((modm .|. shiftMask, xK_v        ), selectWorkspace myXPConfig)
     -- Rename workspace
-    , ((modm .|. shiftMask, xK_r        ), renameWorkspace defaultXPConfig)
+    , ((modm .|. shiftMask, xK_r        ), renameWorkspace myXPConfig)
     -- Move window to workspace
-    , ((modm .|. shiftMask, xK_m        ), withWorkspace defaultXPConfig (windows . W.shift))
+    , ((modm .|. shiftMask, xK_m        ), withWorkspace myXPConfig (windows . W.shift))
  
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
@@ -114,17 +125,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [((m .|. modm, k), windows $ f i)
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
         , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
-    ++
  
-    --
-    -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
-    -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
-    --
-    [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
-        , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
- 
- 
+
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
 --
@@ -212,19 +214,6 @@ myManageHook = composeAll
 myEventHook = mempty
  
 ------------------------------------------------------------------------
--- Status bars and logging
- 
--- Perform an arbitrary action on each internal state change or X event.
--- See the 'XMonad.Hooks.DynamicLog' extension for examples.
---
--- * NOTE: EwmhDesktops users should use the 'ewmh' function from
--- XMonad.Hooks.EwmhDesktops to modify their defaultConfig as a whole.
--- It will add EWMH logHook actions to your custom log hook by
--- combining it with ewmhDesktopsLogHook.
---
-myLogHook = return ()
- 
-------------------------------------------------------------------------
 -- Startup hook
  
 -- Perform an arbitrary action each time xmonad starts or is restarted
@@ -245,15 +234,10 @@ myStartupHook = return ()
  
 -- Run xmonad with the settings you specify. No need to modify this.
 --
-main = xmonad defaults
- 
--- A structure containing your configuration settings, overriding
--- fields in the default config. Any you don't override, will
--- use the defaults defined in xmonad/XMonad/Config.hs
---
--- No need to modify this.
---
-defaults = defaultConfig {
+main = do
+    spawn "/usr/bin/xcompmgr -n"
+    xmproc <- spawnPipe "/home/ben/.cabal/bin/xmobar /home/ben/.xmobarrc"
+    xmonad $ def {
       -- simple stuff
         terminal           = myTerminal,
         focusFollowsMouse  = myFocusFollowsMouse,
@@ -268,9 +252,12 @@ defaults = defaultConfig {
         mouseBindings      = myMouseBindings,
  
       -- hooks, layouts
-        layoutHook         = myLayout,
-        manageHook         = myManageHook,
+        layoutHook         = avoidStruts $ myLayout,
+        manageHook         = manageDocks <+> myManageHook,
         handleEventHook    = myEventHook,
-        logHook            = myLogHook,
+        logHook            = dynamicLogWithPP xmobarPP
+                                 { ppOutput = hPutStrLn xmproc
+                                 , ppTitle = xmobarColor "green" "" . shorten 50
+                                 },
         startupHook        = myStartupHook
     }
