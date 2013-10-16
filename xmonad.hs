@@ -6,11 +6,13 @@ import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
 import XMonad.Util.Run
+import XMonad.Prompt
 import XMonad.Hooks.ManageDocks (manageDocks, avoidStruts)
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.UrgencyHook
 import XMonad.Actions.DynamicWorkspaces
 import XMonad.Actions.CopyWindow (copy)
-import XMonad.Prompt
+import XMonad.Actions.CycleRecentWS
  
 myTerminal      = "gnome-terminal"
  
@@ -24,7 +26,7 @@ myModMask       = mod4Mask
 myWorkspaces    = ["1","2","3","4","mail","irc"]
  
 myNormalBorderColor  = "#dddddd"
-myFocusedBorderColor = "#ff0000"
+myFocusedBorderColor = "#0033ff"
        
 myXPConfig :: XPConfig              
 myXPConfig = def { font = "xft:Ubuntu Mono-10" }
@@ -100,13 +102,15 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- , ((modm              , xK_b     ), sendMessage ToggleStruts)
     
     -- Remove workspace
-    , ((modm .|. shiftMask, xK_BackSpace), removeWorkspace)
+    , ((modm              , xK_BackSpace), removeWorkspace)
     -- Select workspace
-    , ((modm .|. shiftMask, xK_v        ), selectWorkspace myXPConfig)
-    -- Rename workspace
-    , ((modm .|. shiftMask, xK_r        ), renameWorkspace myXPConfig)
+    , ((modm              , xK_v        ), selectWorkspace myXPConfig)
     -- Move window to workspace
-    , ((modm .|. shiftMask, xK_m        ), withWorkspace myXPConfig (windows . W.shift))
+    , ((modm .|. shiftMask, xK_v        ), withWorkspace myXPConfig (windows . W.shift))
+    -- Rename workspace
+    , ((modm              , xK_r        ), renameWorkspace myXPConfig)
+    -- Cycle through recent workspaces
+    , ((modm              , xK_Tab      ), cycleRecentWS [xK_Super_L] xK_Tab xK_grave)
  
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
@@ -116,9 +120,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     ]
     ++
  
-    --
-    -- mod-[1..9], Switch to workspace N
-    --
     -- mod-[1..9], Switch to workspace N
     -- mod-shift-[1..9], Move client to workspace N
     --
@@ -228,7 +229,9 @@ myEventHook = mempty
 -- hook by combining it with ewmhDesktopsStartup.
 --
 myStartupHook = return ()
- 
+
+myXmobarPP = xmobarPP { ppUrgent = xmobarColor "yellow" "red" . xmobarStrip }
+
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
  
@@ -237,7 +240,9 @@ myStartupHook = return ()
 main = do
     spawn "/usr/bin/xcompmgr -n"
     xmproc <- spawnPipe "/home/ben/.cabal/bin/xmobar /home/ben/.xmobarrc"
-    xmonad $ def {
+    xmonad
+      $ withUrgencyHook NoUrgencyHook
+      $ def {
       -- simple stuff
         terminal           = myTerminal,
         focusFollowsMouse  = myFocusFollowsMouse,
@@ -255,7 +260,7 @@ main = do
         layoutHook         = avoidStruts $ myLayout,
         manageHook         = manageDocks <+> myManageHook,
         handleEventHook    = myEventHook,
-        logHook            = dynamicLogWithPP xmobarPP
+        logHook            = dynamicLogWithPP myXmobarPP
                                  { ppOutput = hPutStrLn xmproc
                                  , ppTitle = xmobarColor "green" "" . shorten 50
                                  },
