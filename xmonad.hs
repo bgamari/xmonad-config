@@ -7,12 +7,19 @@ import qualified Data.Map        as M
 
 import XMonad.Util.Run
 import XMonad.Prompt
+
+import XMonad.Layout.LimitWindows
+import XMonad.Layout.WorkspaceDir
+
 import XMonad.Hooks.ManageDocks (manageDocks, avoidStruts)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.UrgencyHook
+
 import XMonad.Actions.DynamicWorkspaces
 import XMonad.Actions.CopyWindow (copy)
-import XMonad.Actions.CycleRecentWS
+import XMonad.Actions.CycleRecentWS (cycleRecentWS)
+import XMonad.Actions.CycleWindows (cycleRecentWindows)
+import XMonad.Actions.CycleWS
  
 myTerminal      = "gnome-terminal"
  
@@ -37,9 +44,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm              , xK_F1    ), spawn $ XMonad.terminal conf)
 
     -- launch browser
-    , ((modm              , xK_F2    ), spawn "chromium-browser")
+    , ((modm              , xK_F2    ), spawn "firefox")
     
-    , ((modm              , xK_F5    ), spawn "emacsclient -c ~")
+    , ((modm              , xK_F4    ), spawn "emacsclient -c ~")
+    , ((modm              , xK_F5    ), spawn "emacsclient -c -e \"(notmuch)\"")
 
     -- launch dmenu
     , ((modm,               xK_p     ), spawn "exe=`dmenu_path | dmenu` && eval \"exec $exe\"")
@@ -57,10 +65,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
  
     -- Resize viewed windows to the correct size
-    , ((modm,               xK_n     ), refresh)
- 
-    -- Move focus to the next window
-    , ((modm,               xK_Tab   ), windows W.focusDown)
+    , ((modm,               xK_r     ), refresh)
  
     -- Move focus to the next window
     , ((modm,               xK_j     ), windows W.focusDown)
@@ -79,6 +84,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
  
     -- Swap the focused window with the previous window
     , ((modm .|. shiftMask, xK_k     ), windows W.swapUp    )
+
+    -- Switch to urgent window
+    , ((modm,               xK_u     ), focusUrgent )
  
     -- Shrink the master area
     , ((modm,               xK_h     ), sendMessage Shrink)
@@ -94,6 +102,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
  
     -- Deincrement the number of windows in the master area
     , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
+
+    -- Increase the window limit
+    , ((modm              , xK_plus  ), increaseLimit)
+    -- Decrease the window limit
+    , ((modm              , xK_minus ), decreaseLimit)
  
     -- Toggle the status bar gap
     -- Use this binding with avoidStruts from Hooks.ManageDocks.
@@ -107,11 +120,27 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_v        ), selectWorkspace myXPConfig)
     -- Move window to workspace
     , ((modm .|. shiftMask, xK_v        ), withWorkspace myXPConfig (windows . W.shift))
+    -- Copy window to workspace
+    , ((modm              , xK_c        ), withWorkspace myXPConfig (windows . copy))
     -- Rename workspace
     , ((modm              , xK_r        ), renameWorkspace myXPConfig)
     -- Cycle through recent workspaces
     , ((modm              , xK_Tab      ), cycleRecentWS [xK_Super_L] xK_Tab xK_grave)
- 
+    -- Cycle through recent windows
+    , ((mod1Mask          , xK_Tab      ), cycleRecentWindows [xK_Alt_L] xK_Tab xK_grave)
+    
+    -- Next workspace
+    , ((modm              , xK_Right    ), moveTo Next HiddenNonEmptyWS)
+    -- Previous workspace
+    , ((modm              , xK_Left     ), moveTo Prev HiddenNonEmptyWS)
+    -- Next workspace
+    , ((modm .|. shiftMask, xK_Right    ), shiftTo Next HiddenNonEmptyWS)
+    -- Previous workspace
+    , ((modm .|. shiftMask, xK_Left     ), shiftTo Prev HiddenNonEmptyWS)
+
+    -- Set workspace directory
+    , ((modm              , xK_d        ), changeDir myXPConfig)
+    
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
  
@@ -123,8 +152,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-[1..9], Switch to workspace N
     -- mod-shift-[1..9], Move client to workspace N
     --
-    [((m .|. modm, k), windows $ f i)
-        | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
+    [((m .|. modm, k), withNthWorkspace f i)
+        | (i, k) <- zip [0..] [xK_1 .. xK_9]
         , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
  
 
@@ -164,7 +193,8 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
 --
-myLayout = tiled ||| Mirror tiled ||| Full
+myLayout = limitWindows 6
+         $ tiled ||| Mirror tiled ||| Full
   where
     -- default tiling algorithm partitions the screen into two panes
     tiled   = Tall nmaster delta ratio
@@ -196,9 +226,13 @@ myLayout = tiled ||| Mirror tiled ||| Full
 myManageHook = composeAll
     [ className =? "MPlayer"        --> doFloat
     , className =? "Gimp"           --> doFloat
-    , className =? "totem"          --> doFloat
     , resource  =? "desktop_window" --> doIgnore
-    , resource  =? "kdesktop"       --> doIgnore ]
+    , resource  =? "kdesktop"       --> doIgnore
+    , className =? "Pidgin"         --> doShift "chat"
+    , className =? "empathy-chat"   --> doShift "chat"
+    , className =? "rhythmbox"      --> doShift "music"
+    ]
+
  
 ------------------------------------------------------------------------
 -- Event handling
