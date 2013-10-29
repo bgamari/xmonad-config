@@ -104,7 +104,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
 
     -- Increase the window limit
-    , ((modm              , xK_plus  ), increaseLimit)
+    , ((modm              , xK_equal ), increaseLimit)
     -- Decrease the window limit
     , ((modm              , xK_minus ), decreaseLimit)
  
