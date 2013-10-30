@@ -1,7 +1,13 @@
 import XMonad
 import Data.Monoid
+import Control.Monad (void)
+import Control.Monad.Trans.Class (lift)
+import Control.Monad.IO.Class
+import Control.Error
 import System.Exit
  
+import Graphics.X11.ExtraTypes.XF86
+
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
@@ -20,6 +26,10 @@ import XMonad.Actions.CopyWindow (copy)
 import XMonad.Actions.CycleRecentWS (cycleRecentWS)
 import XMonad.Actions.CycleWindows (cycleRecentWindows)
 import XMonad.Actions.CycleWS
+       
+import MPRIS2
+import TrackPlayers
+import qualified PulseAudio as PA
  
 myTerminal      = "gnome-terminal"
  
@@ -267,6 +277,30 @@ myStartupHook = return ()
 
 myXmobarPP = xmobarPP { ppUrgent = xmobarColor "yellow" "red" . xmobarStrip }
 
+-- | Run an EitherT action producing output on error
+noteEitherT :: MonadIO m => EitherT String m a -> m (Maybe a)
+noteEitherT action = runEitherT action >>= either f (return . Just)
+  where
+    f err = do liftIO $ putStrLn $ "error: "++err
+               return Nothing
+      
+setupVolumeKeys :: EitherT String IO (M.Map (ButtonMask, KeySym) (X ()))
+setupVolumeKeys = do                
+    pulse <- PA.connect
+    device <- PA.getDevices pulse >>= tryHead "No PulseAudio devices"
+    return $ M.fromList
+      [ ( (0, xF86XK_AudioLowerVolume)
+        , void $ io $ noteEitherT $ PA.adjustDeviceVolume pulse device (PA.mulVolume 0.9))
+      , ( (0, xF86XK_AudioRaiseVolume)
+        , void $ io $ noteEitherT $ PA.adjustDeviceVolume pulse device (PA.mulVolume 1.1))
+      ]
+   
+setupMediaKeys :: EitherT String IO (XConfig Layout -> M.Map (ButtonMask, Button) (X ())) 
+setupMediaKeys = do
+    session <- liftIO connectSession
+    playerList <- trackPlayers session
+    undefined
+
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
  
@@ -275,6 +309,9 @@ myXmobarPP = xmobarPP { ppUrgent = xmobarColor "yellow" "red" . xmobarStrip }
 main = do
     spawn "/usr/bin/xcompmgr -n"
     xmproc <- spawnPipe "/home/ben/.cabal/bin/xmobar /home/ben/.xmobarrc"
+    volumeKeys <- runEitherT setupVolumeKeys >>= either (\err->print ("no volume keys: "++err) >> return M.empty) return
+    mediaKeys <- return M.empty
+
     xmonad
       $ withUrgencyHook NoUrgencyHook
       $ def {
@@ -288,7 +325,7 @@ main = do
         focusedBorderColor = myFocusedBorderColor,
  
       -- key bindings
-        keys               = myKeys,
+        keys               = \c->myKeys c <> mediaKeys <> volumeKeys,
         mouseBindings      = myMouseBindings,
  
       -- hooks, layouts
