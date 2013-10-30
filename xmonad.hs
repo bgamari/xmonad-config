@@ -293,6 +293,8 @@ setupVolumeKeys = do
         , void $ io $ noteEitherT $ PA.adjustDeviceVolume pulse device (PA.mulVolume 0.9))
       , ( (0, xF86XK_AudioRaiseVolume)
         , void $ io $ noteEitherT $ PA.adjustDeviceVolume pulse device (PA.mulVolume 1.1))
+      , ( (0, xF86XK_AudioMute)
+        , void $ io $ noteEitherT $ PA.toggleDeviceMute pulse device )
       ]
    
 setupMediaKeys :: EitherT String IO (XConfig Layout -> M.Map (ButtonMask, Button) (X ())) 

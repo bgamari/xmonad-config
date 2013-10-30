@@ -11,6 +11,7 @@ module PulseAudio ( PAConn
                   , getDeviceName
                   , getDeviceMute
                   , setDeviceMute
+                  , toggleDeviceMute
                   , getDeviceVolume
                   , setDeviceVolume
                   , adjustDeviceVolume
@@ -98,6 +99,9 @@ getDeviceMute (PAConn client) (Device dev) = do
 setDeviceMute :: PAConn -> Device -> Bool -> EitherT String IO ()
 setDeviceMute (PAConn client) (Device dev) mute = do
     setProperty client "org.PulseAudio" dev "org.PulseAudio.Core1.Device" "Mute" (toVariant mute)
+
+toggleDeviceMute :: PAConn -> Device -> EitherT String IO ()
+toggleDeviceMute c d = getDeviceMute c d >>= setDeviceMute c d . not
 
 getDeviceVolume :: PAConn -> Device -> EitherT String IO Volume
 getDeviceVolume (PAConn client) (Device dev) = do
