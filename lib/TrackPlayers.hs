@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module TrackPlayers ( trackPlayers
-                    , withCurrentPlayer
+                    , withActivePlayer
                     ) where
 
 import Control.Error
@@ -31,8 +31,8 @@ trackPlayers c = do
                        _        -> delete player
         liftIO $ atomically $ modifyTVar players update
   
-withCurrentPlayer :: MonadIO m => TVar [Player] -> (Player -> m ()) -> m ()
-withCurrentPlayer playersVar action = do
+withActivePlayer :: MonadIO m => TVar [Player] -> (Player -> m ()) -> m ()
+withActivePlayer playersVar action = do
     players <- liftIO $ atomically $ readTVar playersVar
     case players of
       []    -> return ()

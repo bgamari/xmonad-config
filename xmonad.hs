@@ -297,11 +297,18 @@ setupVolumeKeys = do
         , void $ io $ noteEitherT $ PA.toggleDeviceMute pulse device )
       ]
    
-setupMediaKeys :: EitherT String IO (XConfig Layout -> M.Map (ButtonMask, Button) (X ())) 
+setupMediaKeys :: EitherT String IO (M.Map (ButtonMask, KeySym) (X ())) 
 setupMediaKeys = do
     session <- liftIO connectSession
     playerList <- trackPlayers session
-    undefined
+    return $ M.fromList
+      [ ( (controlMask, xF86XK_AudioLowerVolume)
+        , void $ io $ noteEitherT $ withActivePlayer playerList $ previous session)
+      , ( (controlMask, xF86XK_AudioRaiseVolume)
+        , void $ io $ noteEitherT $ withActivePlayer playerList $ next session)
+      , ( (controlMask, xF86XK_AudioMute)
+        , void $ io $ noteEitherT $ withActivePlayer playerList $ playPause session)
+      ]
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
@@ -312,7 +319,7 @@ main = do
     spawn "/usr/bin/xcompmgr -n"
     xmproc <- spawnPipe "/home/ben/.cabal/bin/xmobar /home/ben/.xmobarrc"
     volumeKeys <- runEitherT setupVolumeKeys >>= either (\err->print ("no volume keys: "++err) >> return M.empty) return
-    mediaKeys <- return M.empty
+    mediaKeys <- runEitherT setupMediaKeys >>= either (\err->print ("no media keys: "++err) >> return M.empty) return
 
     xmonad
       $ withUrgencyHook NoUrgencyHook
