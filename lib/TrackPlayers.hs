@@ -24,7 +24,7 @@ trackPlayers c = do
     update players signal = void $ runMaybeT $ do
         [name,old,new] <- sequence $ fmap (hoistMaybe . fromVariant) (signalBody signal)
         busName <- hoistMaybe $ parseBusName name
-        when (isMPRIS busName) nothing
+        when (not $ isMPRIS busName) nothing
         let player = Player busName
             update = case (old,new) of
                        ("", _)  -> \names -> player : filter (/= player) names
