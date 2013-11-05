@@ -1,5 +1,15 @@
+{-# LANGUAGE ParallelListComp #-}              
+
 import XMonad
+import Data.Colour
+import Data.Word (Word8)
+import Data.Colour.SRGB (sRGB, sRGB24show)
+import Data.Colour.RGBSpace (uncurryRGB)
+import Data.Colour.RGBSpace.HSV (hsv)
 import Data.Monoid
+import Data.Maybe (fromMaybe)
+import Data.List (sort, groupBy)
+import Data.Function (on)
 import Control.Monad (void)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.IO.Class
@@ -59,7 +69,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch browser
     , ((modm              , xK_F2    ), spawn "firefox")
 
-    , ((modm              , xK_F4    ), spawn "emacsclient -c ~")
+    , ((modm              , xK_F4    ), spawn "emacsclient -c .")
     , ((modm              , xK_F5    ), spawn "emacsclient -c -e \"(notmuch)\"")
 
     -- launch dmenu
@@ -321,7 +331,7 @@ main = do
     spawn "/home/ben/.cabal/bin/taffybar"
     volumeKeys <- runEitherT setupVolumeKeys >>= either (\err->print ("no volume keys: "++err) >> return M.empty) return
     mediaKeys <- runEitherT setupMediaKeys >>= either (\err->print ("no media keys: "++err) >> return M.empty) return
-    dbus <- connectSession
+    dbus <- runMaybeT $ hushT $ tryIO $ connectSession
 
     xmonad
       $ withUrgencyHook NoUrgencyHook
@@ -343,15 +353,42 @@ main = do
         layoutHook         = avoidStruts $ myLayout,
         manageHook         = manageDocks <+> myManageHook,
         handleEventHook    = myEventHook,
-        logHook            = dbusLogWithPP dbus $ taffybarPP
-                                 { ppUrgent = taffybarColor "black" "#e6abab" . xmobarStrip
-                                 , ppCurrent = taffybarBold . taffybarColor "#00900d" "" . xmobarStrip
-                                 , ppSep = replicate 8 ' '
-                                 , ppWsSep = "  "
-                                 },
-        startupHook        = myStartupHook
+        logHook            = case dbus of
+                               Just client ->
+                                 dbusLogWithPP client $ taffybarPP
+                                   { ppUrgent  = \s->taffybarColor "black" "#e6abab" . xmobarStrip
+                                   , ppCurrent = \s i->taffybarBold $ taffybarColor (showColour $ workspaceColor s i) "#ffffff" $ xmobarStrip i
+                                   , ppHiddenNoWindows = \s i->taffybarColor (showColour $ workspaceColor s i) "#dddddd" $ xmobarStrip i
+                                   , ppHidden  = \s i->taffybarColor (showColour $ workspaceColor s i) "" $ xmobarStrip i
+                                   , ppSep = replicate 8 ' '
+                                   , ppWsSep = "  "
+                                   }
+                               Nothing    -> return ()
+    ,   startupHook        = myStartupHook
     }
 
+showColour = sRGB24show 
+
+workspaceColor :: WindowSet -> WorkspaceId -> Colour Float
+workspaceColor s i =
+    fromMaybe (sRGB 0 0 0)
+    $ listToMaybe
+    $ map fst
+    $ filter (elem i . snd)
+    $ colored
+  where
+    colors = map (uncurryRGB sRGB)
+           [ hsv   0 0.8 0.4
+           , hsv  60 0.8 0.4
+           , hsv 120 0.8 0.4
+           , hsv 180 0.8 0.4
+           , hsv 240 0.8 0.4
+           , hsv 300 0.8 0.4
+           ]
+    prefix = takeWhile (/= '-')
+    colored :: [(Colour Float, [WorkspaceId])]
+    colored = zip (cycle colors)
+            $ groupBy ((==) `on` prefix) $ sort $ map W.tag $ W.workspaces s
 
 taffybarBold :: String -> String
 taffybarBold = wrap "<span weight=\"bold\">" "</span>"
