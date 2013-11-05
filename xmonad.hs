@@ -69,6 +69,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch browser
     , ((modm              , xK_F2    ), spawn "firefox")
 
+    , ((modm              , xK_F3    ), spawn "nautilus .")
     , ((modm              , xK_F4    ), spawn "emacsclient -c .")
     , ((modm              , xK_F5    ), spawn "emacsclient -c -e \"(notmuch)\"")
 
