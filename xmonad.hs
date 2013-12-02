@@ -8,9 +8,10 @@ import Data.Colour.RGBSpace (uncurryRGB)
 import Data.Colour.RGBSpace.HSV (hsv)
 import Data.Monoid
 import Data.Maybe (fromMaybe)
-import Data.List (sort, groupBy)
+import Data.List (sort, groupBy, isInfixOf)
 import Data.Function (on)
-import Control.Monad (void)
+import Control.Applicative ((<$>))
+import Control.Monad (void, filterM)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.IO.Class
 import Control.Error
@@ -300,7 +301,9 @@ noteEitherT action = runEitherT action >>= either f (return . Just)
 setupVolumeKeys :: EitherT String IO (M.Map (ButtonMask, KeySym) (X ()))
 setupVolumeKeys = do
     pulse <- PA.connect
-    device <- PA.getDevices pulse >>= tryHead "No PulseAudio devices"
+    devices <- PA.getDevices pulse
+    matching <- filterM (\dev->not . ("hdmi" `isInfixOf`) <$> PA.getDeviceName pulse dev) devices
+    device <- tryHead "No PulseAudio devices" matching
     return $ M.fromList
       [ ( (0, xF86XK_AudioLowerVolume)
         , void $ io $ noteEitherT $ PA.adjustDeviceVolume pulse device (PA.mulVolume 0.9))
