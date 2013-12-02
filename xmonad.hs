@@ -41,6 +41,7 @@ import System.Taffybar.XMonadLog
 import MPRIS2
 import TrackPlayers
 import qualified PulseAudio as PA
+import Brightness
 import DBus
 import DBus.Client
 
@@ -322,6 +323,16 @@ setupMediaKeys = do
         , void $ io $ noteEitherT $ withActivePlayer playerList $ playPause session)
       ]
 
+setupBrightnessKeys :: EitherT String IO (M.Map (ButtonMask, KeySym) (X()))
+setupBrightnessKeys = do
+    session <- liftIO connectSession
+    return $ M.fromList
+      [ ( (0, xF86XK_MonBrightnessDown)
+        , void $ io $ noteEitherT $ modifyBrightness session Down)
+      , ( (0, xF86XK_MonBrightnessUp)
+        , void $ io $ noteEitherT $ modifyBrightness session Up)
+      ]
+
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
 
@@ -332,6 +343,7 @@ main = do
     spawn "/home/ben/.cabal/bin/taffybar"
     volumeKeys <- runEitherT setupVolumeKeys >>= either (\err->print ("no volume keys: "++err) >> return M.empty) return
     mediaKeys <- runEitherT setupMediaKeys >>= either (\err->print ("no media keys: "++err) >> return M.empty) return
+    brightnessKeys <- runEitherT setupBrightnessKeys >>= either (\err->print ("no brightness keys: "++err) >> return M.empty) return
     dbus <- runMaybeT $ hushT $ tryIO $ connectSession
 
     xmonad
@@ -347,7 +359,7 @@ main = do
         focusedBorderColor = myFocusedBorderColor,
 
       -- key bindings
-        keys               = \c->myKeys c <> mediaKeys <> volumeKeys,
+        keys               = \c->myKeys c <> mediaKeys <> volumeKeys <> brightnessKeys,
         mouseBindings      = myMouseBindings,
 
       -- hooks, layouts
