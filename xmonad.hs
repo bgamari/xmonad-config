@@ -29,6 +29,7 @@ import XMonad.Layout.LimitWindows
 import XMonad.Layout.WorkspaceDir
 
 import XMonad.Hooks.ManageDocks (manageDocks, avoidStruts)
+import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.UrgencyHook
 
@@ -148,6 +149,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_v        ), withWorkspace myXPConfig (windows . W.shift))
     -- Copy window to workspace
     , ((modm              , xK_c        ), withWorkspace myXPConfig (windows . copy))
+    -- Kill other copies
+    -- , ((modm              , xK_x        ), killAllOtherCopies)
     -- Rename workspace
     , ((modm              , xK_r        ), renameWorkspace myXPConfig)
     -- Cycle through recent workspaces
@@ -251,7 +254,8 @@ myLayout = workspaceDir "/home/ben"
 -- 'className' and 'resource' are used below.
 --
 myManageHook = composeAll
-    [ className =? "MPlayer"        --> doFloat
+    [ isFullscreen                  --> doFullFloat
+    , className =? "MPlayer"        --> doFloat
     , className =? "Gimp"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore
