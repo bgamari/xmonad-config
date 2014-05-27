@@ -65,7 +65,7 @@ stop = playerAction "Stop"
 main = do
     c <- connectSession
     runEitherT $ do
-    players <- findPlayers c
-    mapM (getIdentity c) players >>= liftIO . print
-    mapM (playPause c) players
+        players <- findPlayers c
+        mapM (getIdentity c) players >>= liftIO . print
+        mapM (playPause c) players
 
