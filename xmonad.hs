@@ -39,7 +39,9 @@ import XMonad.Actions.CycleRecentWS (cycleRecentWS)
 import XMonad.Actions.CycleWindows (cycleRecentWindows)
 import XMonad.Actions.CycleWS
 
-import System.Taffybar.XMonadLog
+import XMonad.Hooks.EwmhDesktops (ewhm)
+import System.Taffybar.Hooks.PagerHints (pagerHints)
+
 import MPRIS2
 import TrackPlayers
 import qualified PulseAudio as PA
@@ -354,6 +356,7 @@ main = do
     dbus <- runMaybeT $ hushT $ tryIO $ connectSession
 
     xmonad
+      $ ewmh $ pagerHints
       $ withUrgencyHook NoUrgencyHook
       $ def {
       -- simple stuff
