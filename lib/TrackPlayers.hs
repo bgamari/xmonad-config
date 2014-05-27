@@ -18,7 +18,7 @@ import Control.Concurrent (threadDelay)
 trackPlayers :: Client -> EitherT String IO (TVar [Player])
 trackPlayers c = do
     players <- findPlayers c >>= liftIO . newTVarIO
-    liftIO $ listen c (matchAny {matchMember=Just "NameOwnerChanged"}) (update players)
+    liftIO $ addMatch c (matchAny {matchMember=Just "NameOwnerChanged"}) (update players)
     return players
   where
     update players signal = void $ runMaybeT $ do
