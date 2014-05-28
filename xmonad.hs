@@ -1,13 +1,7 @@
 {-# LANGUAGE ParallelListComp #-}              
 
 import XMonad
-import Data.Colour
-import Data.Word (Word8)
-import Data.Colour.SRGB (sRGB, sRGB24show)
-import Data.Colour.RGBSpace (uncurryRGB)
-import Data.Colour.RGBSpace.HSV (hsv)
 import Data.Monoid
-import Data.Maybe (fromMaybe)
 import Data.List (sort, groupBy, isInfixOf)
 import Data.Function (on)
 import Control.Applicative ((<$>))
@@ -39,7 +33,7 @@ import XMonad.Actions.CycleRecentWS (cycleRecentWS)
 import XMonad.Actions.CycleWindows (cycleRecentWindows)
 import XMonad.Actions.CycleWS
 
-import XMonad.Hooks.EwmhDesktops (ewhm)
+import XMonad.Hooks.EwmhDesktops (ewmh)
 import System.Taffybar.Hooks.PagerHints (pagerHints)
 
 import MPRIS2
@@ -376,42 +370,6 @@ main = do
         layoutHook         = avoidStruts $ myLayout,
         manageHook         = manageDocks <+> myManageHook,
         handleEventHook    = myEventHook,
-        logHook            = case dbus of
-                               Just client ->
-                                 dbusLogWithPP client $ taffybarPP
-                                   { ppUrgent  = \s->taffybarColor "black" "#e6abab" . xmobarStrip
-                                   , ppCurrent = \s i->taffybarBold $ taffybarColor (showColour $ workspaceColor s i) "#ffffff" $ xmobarStrip i
-                                   , ppHiddenNoWindows = \s i->taffybarColor (showColour $ workspaceColor s i) "#dddddd" $ xmobarStrip i
-                                   , ppHidden  = \s i->taffybarColor (showColour $ workspaceColor s i) "" $ xmobarStrip i
-                                   , ppSep = replicate 8 ' '
-                                   , ppWsSep = "  "
-                                   }
-                               Nothing    -> return ()
-    ,   startupHook        = myStartupHook
+        logHook            = return (),
+        startupHook        = myStartupHook
     }
-
-showColour = sRGB24show 
-
-workspaceColor :: WindowSet -> WorkspaceId -> Colour Float
-workspaceColor s i =
-    fromMaybe (sRGB 0 0 0)
-    $ listToMaybe
-    $ map fst
-    $ filter (elem i . snd)
-    $ colored
-  where
-    colors = map (uncurryRGB sRGB)
-           [ hsv   0 0.8 0.4
-           , hsv  60 0.8 0.4
-           , hsv 120 0.8 0.4
-           , hsv 180 0.8 0.4
-           , hsv 240 0.8 0.4
-           , hsv 300 0.8 0.4
-           ]
-    prefix = takeWhile (/= '-')
-    colored :: [(Colour Float, [WorkspaceId])]
-    colored = zip (cycle colors)
-            $ groupBy ((==) `on` prefix) $ sort $ map W.tag $ W.workspaces s
-
-taffybarBold :: String -> String
-taffybarBold = wrap "<span weight=\"bold\">" "</span>"
