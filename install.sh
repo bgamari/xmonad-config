@@ -2,16 +2,17 @@
 
 ln -s .xmonad/xsession ~/.xsession
 
-mkdir ~/.config
-ln -s $HOME/.xmonad/taffybar $HOME/.config/taffybar
+if [ ! -e $HOME/.config/taffybar ]; then
+        ln -s $HOME/.xmonad/taffybar $HOME/.config/taffybar
+fi
 
-session=/usr/share/xsession/custom.desktop
-if [ ! -f $session ]; then
-echo "Installing display manager session"
-sudo cat <<EOF >$session
+xsessions=/usr/share/xsessions/custom.desktop
+if [ ! -f $xsessions/custom.desktop ]; then
+        echo "Installing display manager session"
+        cat <<EOF >custom.desktop
 [Desktop Entry]
 Name=Xsession
 Exec=/etc/X11/Xsession
 EOF
+        sudo mv custom.desktop $xsessions
 fi
-
