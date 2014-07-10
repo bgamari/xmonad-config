@@ -16,3 +16,8 @@ Exec=/etc/X11/Xsession
 EOF
         sudo mv custom.desktop $xsessions
 fi
+
+echo Configuring pulseaudio
+mkdir -p $HOME/.config/pulse
+cp /etc/pulse/default.pa $HOME/.config/pulse/default.pa
+echo "load-module module-dbus-protocol" >> $HOME/.config/pulse/default.pa
