@@ -55,7 +55,7 @@ myModMask       = mod4Mask
 myWorkspaces    = ["1","2","3","4","mail","irc"]
 
 myNormalBorderColor  = "#dddddd"
-myFocusedBorderColor = "#0033ff"
+myFocusedBorderColor = "#70a0e0"
 
 myXPConfig :: XPConfig
 myXPConfig = def { font = "xft:Ubuntu Mono-10" }
