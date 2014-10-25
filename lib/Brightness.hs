@@ -4,16 +4,12 @@ module Brightness (Direction(..), modifyBrightness) where
 
 import Control.Error
 import Control.Monad (void)
-import DBus
-import DBus.Client
+import System.Process
 
 data Direction = Down | Up deriving (Show)
 
-modifyBrightness :: Client -> Direction -> EitherT String IO ()
-modifyBrightness client dir =
-    let m = case dir of Up   -> "StepUp"
-                        Down -> "StepDown"
-    in void $ fmapLT show $ EitherT $ call client
-       $ (methodCall "/org/gnome/SettingsDaemon/Power" "org.gnome.SettingsDaemon.Power.Screen" m)
-         { methodCallDestination = Just "org.gnome.SettingsDaemon.Power" }
-
+modifyBrightness :: Direction -> EitherT String IO ()
+modifyBrightness dir =
+    let m = case dir of Up   -> "+5"
+                        Down -> "-5"
+    in fmapLT show $ tryIO $ callProcess "set-brightness" [m]

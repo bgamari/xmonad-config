@@ -328,12 +328,11 @@ setupMediaKeys = do
 
 setupBrightnessKeys :: EitherT String IO (M.Map (ButtonMask, KeySym) (X()))
 setupBrightnessKeys = do
-    session <- liftIO connectSession
     return $ M.fromList
       [ ( (0, xF86XK_MonBrightnessDown)
-        , void $ io $ noteEitherT $ modifyBrightness session Down)
+        , void $ io $ noteEitherT $ modifyBrightness Down)
       , ( (0, xF86XK_MonBrightnessUp)
-        , void $ io $ noteEitherT $ modifyBrightness session Up)
+        , void $ io $ noteEitherT $ modifyBrightness Up)
       ]
 
 ------------------------------------------------------------------------
