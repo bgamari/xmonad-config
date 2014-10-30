@@ -24,7 +24,7 @@ import System.Taffybar.Widgets.PollingLabel
 import System.Information.Memory
 import System.Information.CPU
 
-import Graphics.UI.Gtk (Markup, widgetShow)
+import Graphics.UI.Gtk (widgetShow)
 
 memCallback = do
   mi <- parseMeminfo
