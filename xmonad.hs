@@ -43,7 +43,7 @@ import Brightness
 import DBus
 import DBus.Client
 
-myTerminal      = "gnome-terminal"
+myTerminal      = "xfce4-terminal"
 
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
