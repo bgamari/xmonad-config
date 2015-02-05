@@ -1,4 +1,5 @@
 {-# LANGUAGE ParallelListComp #-}              
+{-# LANGUAGE CPP #-}
 
 import XMonad
 import Data.Monoid
@@ -34,7 +35,9 @@ import XMonad.Actions.CycleWindows (cycleRecentWindows)
 import XMonad.Actions.CycleWS
 
 import XMonad.Hooks.EwmhDesktops (ewmh)
+#ifdef TAFFYBAR
 import System.Taffybar.Hooks.PagerHints (pagerHints)
+#endif
 
 import MPRIS2
 import TrackPlayers
@@ -42,6 +45,10 @@ import qualified PulseAudio as PA
 import Brightness
 import DBus
 import DBus.Client
+
+#ifndef TAFFYBAR
+pagerHints = id
+#endif
 
 myTerminal      = "xfce4-terminal"
 
