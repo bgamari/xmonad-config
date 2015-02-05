@@ -1,0 +1,30 @@
+name:                xmonad-ben
+version:             0.1.0.0
+author:              Ben Gamari
+maintainer:          bgamari@gmail.com
+build-type:          Simple
+cabal-version:       >=1.10
+
+flag taffybar
+  default: True
+
+executable xmonad-ben
+  main-is:             xmonad.hs
+  other-extensions:    OverloadedStrings
+  build-depends:       base >=4.7 && <4.9,
+                       transformers >=0.4 && <0.5,
+                       errors >=1.4 && <1.5,
+                       dbus >=0.10 && <0.11,
+                       stm >=2.4 && <2.5,
+                       containers >=0.5 && <0.6,
+                       process >=1.2 && <1.3,
+                       colour,
+                       X11,
+                       xmonad >= 0.12,
+                       xmonad-contrib >= 0.12
+  if flag(taffybar)
+    build-depends:       taffybar
+    cpp-options:         -DTAFFYBAR
+
+  hs-source-dirs:      ., lib
+  default-language:    Haskell2010
