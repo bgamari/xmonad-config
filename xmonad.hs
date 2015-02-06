@@ -65,7 +65,9 @@ myNormalBorderColor  = "#dddddd"
 myFocusedBorderColor = "#70a0e0"
 
 myXPConfig :: XPConfig
-myXPConfig = def { font = "xft:Ubuntu Mono-10" }
+myXPConfig = def { font = "xft:Bitstream Vera Sans-8"
+                 , height = 30
+                 }
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
