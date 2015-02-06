@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PackageImports #-}
 
 import Data.Monoid (mconcat)
 import Control.Monad.State
@@ -24,7 +25,7 @@ import System.Taffybar.Widgets.PollingLabel
 import System.Information.Memory
 import System.Information.CPU
 
-import Graphics.UI.Gtk (widgetShow)
+import "gtk" Graphics.UI.Gtk (widgetShow)
 
 memCallback = do
   mi <- parseMeminfo
