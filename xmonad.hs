@@ -52,7 +52,9 @@ import DBus.Client
 pagerHints = id
 #endif
 
-myTerminal      = "xfce4-terminal"
+--myTerminal      = "xfce4-terminal"
+myTerminal      = "gnome-terminal"
+myBrowser       = "firefox"
 
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
@@ -77,7 +79,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm              , xK_F1    ), spawn $ XMonad.terminal conf)
 
     -- launch browser
-    , ((modm              , xK_F2    ), spawn "firefox")
+    , ((modm              , xK_F2    ), spawn myBrowser)
 
     , ((modm              , xK_F3    ), spawn "nautilus .")
     , ((modm              , xK_F4    ), spawn "emacsclient -c .")
