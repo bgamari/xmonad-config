@@ -69,7 +69,7 @@ myNormalBorderColor  = "#dddddd"
 myFocusedBorderColor = "#70a0e0"
 
 myXPConfig :: XPConfig
-myXPConfig = def { font = "xft:Bitstream Vera Sans-8"
+myXPConfig = def { font = "xft:Bitstream Vera Sans-11"
                  , height = 30
                  }
 
