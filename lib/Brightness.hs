@@ -12,4 +12,4 @@ modifyBrightness :: Direction -> ExceptT String IO ()
 modifyBrightness dir =
     let m = case dir of Up   -> "+5"
                         Down -> "-5"
-    in withExcept show $ tryIO $ callProcess "set-brightness" [m]
+    in withExceptT show $ tryIO $ callProcess "set-brightness" [m]

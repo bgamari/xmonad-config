@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-                
+
 module PulseAudio ( PAConn
                   , connect
                     -- * Streams
@@ -34,14 +34,14 @@ import Property
 
 newtype PAConn = PAConn Client
 
-lookupBusAddress :: EitherT String IO Address
+lookupBusAddress :: ExceptT String IO Address
 lookupBusAddress = do
     session <- liftIO $ C.connectSession
-    --ret <- fmapLT show $ EitherT $ call session c
+    --ret <- fmapLT show $ ExceptT $ call session c
     ret <- getProperty session "org.PulseAudio1" "/org/pulseaudio/server_lookup1" "org.PulseAudio.ServerLookup1" "Address"
     --case join $ fmap fromVariant $ fromVariant (methodReturnBody ret !! 0) of
     case fromVariant ret of
-      Nothing   -> left "Error looking up PulseAudio bus"
+      Nothing   -> throwE "Error looking up PulseAudio bus"
       Just addr -> parseAddress addr ?? "Invalid address"
   where
     c = (methodCall "/org/pulseaudio/server_lookup1" "org.freedesktop.DBus.Properties" "Get")
@@ -51,7 +51,7 @@ lookupBusAddress = do
                            ]
         }
 
-connect :: EitherT String IO PAConn
+connect :: ExceptT String IO PAConn
 connect = do 
     bus <- lookupBusAddress
     PAConn <$> liftIO (C.connect bus)
@@ -59,7 +59,7 @@ connect = do
 newtype PlaybackStream = PlaybackStream ObjectPath
                        deriving (Show)
 
-getStreams :: PAConn -> EitherT String IO [PlaybackStream]
+getStreams :: PAConn -> ExceptT String IO [PlaybackStream]
 getStreams (PAConn client) = do
     ret <- getProperty client "org.PulseAudio" "/org/pulseaudio/core1" "org.PulseAudio.Core1" "PlaybackStreams"
     streams <- fromVariant ret ?? "Invalid response"
@@ -68,7 +68,7 @@ getStreams (PAConn client) = do
 newtype Device = Device ObjectPath
                deriving (Show)
 
-getDevices :: PAConn -> EitherT String IO [Device]
+getDevices :: PAConn -> ExceptT String IO [Device]
 getDevices (PAConn client) = do
     ret <- getProperty client "org.PulseAudio" "/org/pulseaudio/core1" "org.PulseAudio.Core1" "Sinks"
     sinks <- fromVariant ret ?? "Invalid response"
@@ -86,29 +86,29 @@ mulVolume a x =
   where
     f = round . (*a) . realToFrac
 
-getDeviceName :: PAConn -> Device -> EitherT String IO String
+getDeviceName :: PAConn -> Device -> ExceptT String IO String
 getDeviceName (PAConn client) (Device dev) = do
     ret <- getProperty client "org.PulseAudio" dev "org.PulseAudio.Core1.Device" "Name"
     fromVariant ret ?? "Invalid response"
 
-getDeviceMute :: PAConn -> Device -> EitherT String IO Bool
+getDeviceMute :: PAConn -> Device -> ExceptT String IO Bool
 getDeviceMute (PAConn client) (Device dev) = do
-    ret <- getProperty client "org.PulseAudio" dev "org.PulseAudio.Core1.Device" "Mute" 
+    ret <- getProperty client "org.PulseAudio" dev "org.PulseAudio.Core1.Device" "Mute"
     fromVariant ret ?? "Invalid response"
 
-setDeviceMute :: PAConn -> Device -> Bool -> EitherT String IO ()
+setDeviceMute :: PAConn -> Device -> Bool -> ExceptT String IO ()
 setDeviceMute (PAConn client) (Device dev) mute = do
     setProperty client "org.PulseAudio" dev "org.PulseAudio.Core1.Device" "Mute" (toVariant mute)
 
-toggleDeviceMute :: PAConn -> Device -> EitherT String IO ()
+toggleDeviceMute :: PAConn -> Device -> ExceptT String IO ()
 toggleDeviceMute c d = getDeviceMute c d >>= setDeviceMute c d . not
 
-getDeviceVolume :: PAConn -> Device -> EitherT String IO Volume
+getDeviceVolume :: PAConn -> Device -> ExceptT String IO Volume
 getDeviceVolume (PAConn client) (Device dev) = do
-    ret <- getProperty client "org.PulseAudio" dev "org.PulseAudio.Core1.Device" "Volume" 
+    ret <- getProperty client "org.PulseAudio" dev "org.PulseAudio.Core1.Device" "Volume"
     Volume <$> fromVariant ret ?? "Invalid response"
 
-setDeviceVolume :: PAConn -> Device -> Volume -> EitherT String IO ()
+setDeviceVolume :: PAConn -> Device -> Volume -> ExceptT String IO ()
 setDeviceVolume (PAConn client) (Device dev) volume = do
     setProperty client "org.PulseAudio" dev "org.PulseAudio.Core1.Device" "Volume" v
   where
@@ -116,12 +116,11 @@ setDeviceVolume (PAConn client) (Device dev) volume = do
             Volume vs       -> toVariant vs
             UniformVolume v -> toVariant [v]
 
-adjustDeviceVolume :: PAConn -> Device -> (Volume -> Volume) -> EitherT String IO ()   
+adjustDeviceVolume :: PAConn -> Device -> (Volume -> Volume) -> ExceptT String IO ()
 adjustDeviceVolume c dev f = getDeviceVolume c dev >>= setDeviceVolume c dev . f
 
 main :: IO ()
-main = do
-    runEitherT main' >>= print
+main = runExceptT main' >>= print
 
 main' = do
     c <- connect

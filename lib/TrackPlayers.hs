@@ -8,14 +8,14 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad
 import Control.Concurrent.STM
 import Control.Applicative
-import Data.List (delete)       
+import Data.List (delete)
 import DBus
 import DBus.Client
 import MPRIS2
 
 import Control.Concurrent (threadDelay)
 
-trackPlayers :: Client -> EitherT String IO (TVar [Player])
+trackPlayers :: Client -> ExceptT String IO (TVar [Player])
 trackPlayers c = do
     players <- findPlayers c >>= liftIO . newTVarIO
     liftIO $ addMatch c (matchAny {matchMember=Just "NameOwnerChanged"}) (update players)
@@ -30,19 +30,17 @@ trackPlayers c = do
                        ("", _)  -> \names -> player : filter (/= player) names
                        _        -> delete player
         liftIO $ atomically $ modifyTVar players update
-  
+
 withActivePlayer :: MonadIO m => TVar [Player] -> (Player -> m ()) -> m ()
 withActivePlayer playersVar action = do
     players <- liftIO $ atomically $ readTVar playersVar
     case players of
       []    -> return ()
       p:_   -> action p
-      
+
 main = do
-    c <- connectSession   
-    Right var <- runEitherT (trackPlayers c)
+    c <- connectSession
+    Right var <- runExceptT (trackPlayers c)
     forever $ do
         atomically (readTVar var) >>= print
         threadDelay (10*1000*1000)
-
-    

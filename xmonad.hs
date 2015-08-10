@@ -50,7 +50,7 @@ pagerHints = id
 #endif
 
 --myTerminal      = "xfce4-terminal"
-myTerminal      = "mate-terminal"
+myTerminal      = "gnome-terminal"
 myBrowser       = "firefox"
 
 myFocusFollowsMouse :: Bool
@@ -302,13 +302,13 @@ myEventHook = mempty
 myStartupHook = return ()
 
 -- | Run an EitherT action producing output on error
-noteEitherT :: MonadIO m => EitherT String m a -> m (Maybe a)
-noteEitherT action = runEitherT action >>= either f (return . Just)
+noteExceptT :: MonadIO m => ExceptT String m a -> m (Maybe a)
+noteExceptT action = runExceptT action >>= either f (return . Just)
   where
     f err = do liftIO $ putStrLn $ "error: "++err
                return Nothing
 
-setupVolumeKeys :: EitherT String IO (M.Map (ButtonMask, KeySym) (X ()))
+setupVolumeKeys :: ExceptT String IO (M.Map (ButtonMask, KeySym) (X ()))
 setupVolumeKeys = do
     pulse <- PA.connect
     devices <- PA.getDevices pulse
@@ -316,33 +316,33 @@ setupVolumeKeys = do
     device <- tryHead "No PulseAudio devices" matching
     return $ M.fromList
       [ ( (0, xF86XK_AudioLowerVolume)
-        , void $ io $ noteEitherT $ PA.adjustDeviceVolume pulse device (PA.mulVolume 0.9))
+        , void $ io $ noteExceptT $ PA.adjustDeviceVolume pulse device (PA.mulVolume 0.9))
       , ( (0, xF86XK_AudioRaiseVolume)
-        , void $ io $ noteEitherT $ PA.adjustDeviceVolume pulse device (PA.mulVolume 1.1))
+        , void $ io $ noteExceptT $ PA.adjustDeviceVolume pulse device (PA.mulVolume 1.1))
       , ( (0, xF86XK_AudioMute)
-        , void $ io $ noteEitherT $ PA.toggleDeviceMute pulse device )
+        , void $ io $ noteExceptT $ PA.toggleDeviceMute pulse device )
       ]
 
-setupMediaKeys :: EitherT String IO (M.Map (ButtonMask, KeySym) (X ()))
+setupMediaKeys :: ExceptT String IO (M.Map (ButtonMask, KeySym) (X ()))
 setupMediaKeys = do
     session <- liftIO connectSession
     playerList <- trackPlayers session
     return $ M.fromList
       [ ( (controlMask, xF86XK_AudioLowerVolume)
-        , void $ io $ noteEitherT $ withActivePlayer playerList $ previous session)
+        , void $ io $ noteExceptT $ withActivePlayer playerList $ previous session)
       , ( (controlMask, xF86XK_AudioRaiseVolume)
-        , void $ io $ noteEitherT $ withActivePlayer playerList $ next session)
+        , void $ io $ noteExceptT $ withActivePlayer playerList $ next session)
       , ( (controlMask, xF86XK_AudioMute)
-        , void $ io $ noteEitherT $ withActivePlayer playerList $ playPause session)
+        , void $ io $ noteExceptT $ withActivePlayer playerList $ playPause session)
       ]
 
-setupBrightnessKeys :: EitherT String IO (M.Map (ButtonMask, KeySym) (X()))
-setupBrightnessKeys = do
+setupBrightnessKeys :: ExceptT String IO (M.Map (ButtonMask, KeySym) (X()))
+setupBrightnessKeys =
     return $ M.fromList
       [ ( (0, xF86XK_MonBrightnessDown)
-        , void $ io $ noteEitherT $ modifyBrightness Down)
+        , void $ io $ noteExceptT $ modifyBrightness Down)
       , ( (0, xF86XK_MonBrightnessUp)
-        , void $ io $ noteEitherT $ modifyBrightness Up)
+        , void $ io $ noteExceptT $ modifyBrightness Up)
       ]
 
 ------------------------------------------------------------------------
@@ -353,9 +353,9 @@ setupBrightnessKeys = do
 main = do
     spawn "compton --backend glx -b"
     spawn "taffybar"
-    volumeKeys <- runEitherT setupVolumeKeys >>= either (\err->print ("no volume keys: "++err) >> return M.empty) return
-    mediaKeys <- runEitherT setupMediaKeys >>= either (\err->print ("no media keys: "++err) >> return M.empty) return
-    brightnessKeys <- runEitherT setupBrightnessKeys >>= either (\err->print ("no brightness keys: "++err) >> return M.empty) return
+    volumeKeys <- runExceptT setupVolumeKeys >>= either (\err->print ("no volume keys: "++err) >> return M.empty) return
+    mediaKeys <- runExceptT setupMediaKeys >>= either (\err->print ("no media keys: "++err) >> return M.empty) return
+    brightnessKeys <- runExceptT setupBrightnessKeys >>= either (\err->print ("no brightness keys: "++err) >> return M.empty) return
     dbus <- runMaybeT $ hushT $ tryIO $ connectSession
 
     xmonad
