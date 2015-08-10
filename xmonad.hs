@@ -50,13 +50,13 @@ pagerHints = id
 #endif
 
 --myTerminal      = "xfce4-terminal"
-myTerminal      = "gnome-terminal"
+myTerminal      = "mate-terminal"
 myBrowser       = "firefox"
 
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
 
-myBorderWidth   = 1
+myBorderWidth   = 2
 
 myModMask       = mod4Mask
 
