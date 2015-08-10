@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export WINDOW_MANAGER=xmonad
 export UBUNTU_MENUPROXY=
 PATH=$HOME/.cabal/bin:$PATH
 # Prefix necessary for proper GHC
