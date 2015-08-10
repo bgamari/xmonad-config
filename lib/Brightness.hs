@@ -8,8 +8,8 @@ import System.Process
 
 data Direction = Down | Up deriving (Show)
 
-modifyBrightness :: Direction -> EitherT String IO ()
+modifyBrightness :: Direction -> ExceptT String IO ()
 modifyBrightness dir =
     let m = case dir of Up   -> "+5"
                         Down -> "-5"
-    in fmapLT show $ tryIO $ callProcess "set-brightness" [m]
+    in withExcept show $ tryIO $ callProcess "set-brightness" [m]

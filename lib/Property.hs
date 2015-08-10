@@ -21,7 +21,7 @@ newtype PropertyName = PropertyName String
 instance IsString PropertyName where fromString  = PropertyName
     
 getProperty :: Client -> BusName -> ObjectPath -> InterfaceName -> PropertyName
-            -> EitherT String IO Variant
+            -> ExceptT String IO Variant
 getProperty client dest path iface (PropertyName prop) = do
     ret <- safeCall client c
     fromVariant ret ?? "Invalid return type"
@@ -32,7 +32,7 @@ getProperty client dest path iface (PropertyName prop) = do
         }
 
 setProperty :: Client -> BusName -> ObjectPath -> InterfaceName -> PropertyName
-            -> Variant -> EitherT String IO ()
+            -> Variant -> ExceptT String IO ()
 setProperty client dest path iface (PropertyName prop) value = do
     void $ safeCall_ client c
   where
@@ -41,11 +41,11 @@ setProperty client dest path iface (PropertyName prop) value = do
         , methodCallBody = [ toVariant iface, toVariant prop, toVariant value ]
         }
 
-safeCall_ :: Client -> MethodCall -> EitherT String IO ()
+safeCall_ :: Client -> MethodCall -> ExceptT String IO ()
 safeCall_ client mcall = do
     void $ fmapLT show $ tryIO $ call client mcall
           
-safeCall :: Client -> MethodCall -> EitherT String IO Variant
+safeCall :: Client -> MethodCall -> ExceptT String IO Variant
 safeCall client mcall = do
     ret <- fmapLT show $ tryIO $ call client mcall
-    either (left . show) (tryHead "Empty response" . methodReturnBody) ret
+    either (throwE . show) (tryHead "Empty response" . methodReturnBody) ret
