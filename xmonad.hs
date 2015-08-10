@@ -1,15 +1,12 @@
-{-# LANGUAGE ParallelListComp #-}              
+{-# LANGUAGE ParallelListComp #-}
 {-# LANGUAGE CPP #-}
 
 #define TAFFYBAR 1
 
 import XMonad
 import Data.Monoid
-import Data.List (sort, groupBy, isInfixOf)
-import Data.Function (on)
-import Control.Applicative ((<$>))
+import Data.List (isInfixOf)
 import Control.Monad (void, filterM)
-import Control.Monad.Trans.Class (lift)
 import Control.Monad.IO.Class
 import Control.Error
 import System.Exit
