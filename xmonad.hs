@@ -331,9 +331,17 @@ setupMediaKeys = do
     return $ M.fromList
       [ ( (controlMask, xF86XK_AudioLowerVolume)
         , void $ io $ noteExceptT $ withActivePlayer playerList $ previous session)
+      , ( (controlMask, xF86XK_AudioPrev)
+        , void $ io $ noteExceptT $ withActivePlayer playerList $ previous session)
+
       , ( (controlMask, xF86XK_AudioRaiseVolume)
         , void $ io $ noteExceptT $ withActivePlayer playerList $ next session)
+      , ( (controlMask, xF86XK_AudioNext)
+        , void $ io $ noteExceptT $ withActivePlayer playerList $ next session)
+
       , ( (controlMask, xF86XK_AudioMute)
+        , void $ io $ noteExceptT $ withActivePlayer playerList $ playPause session)
+      , ( (controlMask, xF86XK_AudioPlay)
         , void $ io $ noteExceptT $ withActivePlayer playerList $ playPause session)
       ]
 
