@@ -49,8 +49,8 @@ import DBus.Client
 pagerHints = id
 #endif
 
-myTerminal      = "konsole"
---myTerminal      = "gnome-terminal"
+--myTerminal      = "konsole"
+myTerminal      = "gnome-terminal"
 myBrowser       = "firefox"
 
 myFocusFollowsMouse :: Bool
