@@ -62,7 +62,7 @@ main = do
   mail <- pollingLabelNew "mail" 30 mailCallback
   widgetShow mail
   defaultTaffybar defaultTaffybarConfig { startWidgets = [ log, note ]
-                                        , endWidgets = [ wea, clock, mpris, battery, return mail, tray ]
+                                        , endWidgets = [ wea, clock, mpris defaultMPRISConfig, battery, return mail, tray ]
                                         }
 
 formatter :: Notification -> String
