@@ -62,7 +62,8 @@ myModMask       = mod4Mask
 
 myWorkspaces    = ["1","2","3","4","mail","irc"]
 
-myNormalBorderColor  = "#dddddd"
+--myNormalBorderColor  = "#dddddd"
+myNormalBorderColor  = "#000000"
 myFocusedBorderColor = "#70a0e0"
 
 myXPConfig :: XPConfig
