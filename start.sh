@@ -14,5 +14,6 @@ eval $(gpg-agent --daemon)
 system-config-printer-applet &
 blueman-applet &
 xdg-user-dirs-gtk-update
+$HOME/.xmonad/set-bg.sh
 exec xmonad
 
