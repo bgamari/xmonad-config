@@ -96,7 +96,7 @@ myMarkupWorkspaces :: Traversable f => f WorkspaceInfo -> f Markup
 myMarkupWorkspaces wss = evalState (traverse f wss) ("", cycle colors)
   where
     nColors = 6
-    colors = [ htmlColor $ hsl (i/nColors) 0.8 0.7
+    colors = [ htmlColor $ hsl (360*i/nColors) 0.45 0.65
              | i <- [1..nColors] ]
 
     htmlColor :: RGB Double -> String
@@ -113,7 +113,7 @@ myMarkupWorkspaces wss = evalState (traverse f wss) ("", cycle colors)
 
     color grpColor ws@(WSInfo {wsiName=name, wsiVisibility=vis})
       | wsiUrgent ws   = colorize grpColor "#dcb2b2" $ escape name
-      | Active <- vis  = colorize grpColor "#b2dcc8" $ weightize "bold" $ escape name
+      | Active <- vis  = colorize grpColor "#555" $ weightize "bold" $ escape name
       | Visible <- vis = weightize "bold" $ escape name
       | wsiEmpty ws    = colorize "#868686" "" $ escape name
       | otherwise      = colorize grpColor "" $ escape name
