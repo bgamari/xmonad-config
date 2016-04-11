@@ -96,7 +96,7 @@ myMarkupWorkspaces :: Traversable f => f WorkspaceInfo -> f Markup
 myMarkupWorkspaces wss = evalState (traverse f wss) ("", cycle colors)
   where
     nColors = 6
-    colors = [ htmlColor $ hsl (i/nColors) 0.37 0.5
+    colors = [ htmlColor $ hsl (i/nColors) 0.8 0.7
              | i <- [1..nColors] ]
 
     htmlColor :: RGB Double -> String
