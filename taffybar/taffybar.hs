@@ -7,6 +7,9 @@ import Data.Traversable
 import System.Process
 import qualified Data.Text as T
 import Text.Printf
+import Numeric
+import Data.Colour.RGBSpace
+import Data.Colour.RGBSpace.HSL
 
 import System.Taffybar
 import System.Taffybar.Systray
@@ -92,13 +95,13 @@ weightize w = printf "<span%s>%s</span>" (attr "weight" w)
 myMarkupWorkspaces :: Traversable f => f WorkspaceInfo -> f Markup
 myMarkupWorkspaces wss = evalState (traverse f wss) ("", cycle colors)
   where
-    colors = [ "#843c3c"
-             , "#60843c"
-             , "#3c8384"
-             , "#3c4d84"
-             , "#613c84"
-             , "#843c3c"
-             ]
+    nColors = 6
+    colors = [ htmlColor $ hsl (i/nColors) 0.37 0.5
+             | i <- [1..nColors] ]
+
+    htmlColor :: RGB Double -> String
+    htmlColor (RGB r g b)= "#"++comp r++comp g++comp b
+      where comp x = showHex (round $ 255 * min 1 x) ""
 
     f :: WorkspaceInfo -> State (String, [String]) Markup
     f ws@(WSInfo {wsiName=name}) = do
