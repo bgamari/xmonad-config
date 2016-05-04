@@ -27,7 +27,8 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.UrgencyHook
 
-import XMonad.Actions.DynamicWorkspaces
+import XMonad.Actions.DynamicWorkspaces hiding (selectWorkspace)
+import WorkspacePrompt                         (selectWorkspace)
 import XMonad.Actions.CopyWindow (copy)
 import XMonad.Actions.CycleRecentWS (cycleRecentWS)
 import XMonad.Actions.CycleWindows (cycleRecentWindows)

@@ -20,6 +20,7 @@ executable xmonad-ben
                        process >=1.2 && <1.5,
                        colour,
                        X11,
+                       split,
                        xmonad >= 0.12,
                        xmonad-contrib >= 0.12
   if flag(taffybar)
