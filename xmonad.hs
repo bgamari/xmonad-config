@@ -22,7 +22,7 @@ import XMonad.Prompt
 import XMonad.Layout.LimitWindows
 import XMonad.Layout.WorkspaceDir
 
-import XMonad.Hooks.ManageDocks (manageDocks, avoidStruts)
+import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.UrgencyHook
@@ -147,7 +147,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Use this binding with avoidStruts from Hooks.ManageDocks.
     -- See also the statusBar function from Hooks.DynamicLog.
     --
-    -- , ((modm              , xK_b     ), sendMessage ToggleStruts)
+    , ((modm              , xK_b     ), sendMessage ToggleStruts)
 
     -- Remove workspace
     , ((modm              , xK_BackSpace), removeWorkspace)
@@ -274,20 +274,6 @@ myManageHook = composeAll
 
 
 ------------------------------------------------------------------------
--- Event handling
-
--- Defines a custom handler function for X Events. The function should
--- return (All True) if the default handler is to be run afterwards. To
--- combine event hooks use mappend or mconcat from Data.Monoid.
---
--- * NOTE: EwmhDesktops users should use the 'ewmh' function from
--- XMonad.Hooks.EwmhDesktops to modify their defaultConfig as a whole.
--- It will add EWMH event handling to your custom event hooks by
--- combining them with ewmhDesktopsEventHook.
---
-myEventHook = mempty
-
-------------------------------------------------------------------------
 -- Startup hook
 
 -- Perform an arbitrary action each time xmonad starts or is restarted
@@ -368,6 +354,7 @@ main = do
     mediaKeys <- runExceptT setupMediaKeys >>= either (\err->print ("no media keys: "++err) >> return M.empty) return
     brightnessKeys <- runExceptT setupBrightnessKeys >>= either (\err->print ("no brightness keys: "++err) >> return M.empty) return
     dbus <- runMaybeT $ hushT $ tryIO $ connectSession
+    let pp = defaultPP
 
     xmonad
       $ ewmh $ pagerHints
@@ -389,7 +376,7 @@ main = do
       -- hooks, layouts
         layoutHook         = avoidStruts $ myLayout,
         manageHook         = manageDocks <+> myManageHook,
-        handleEventHook    = myEventHook,
+        handleEventHook    = docksEventHook,
         logHook            = return (),
-        startupHook        = myStartupHook
+        startupHook        = docksStartupHook >> myStartupHook
     }
