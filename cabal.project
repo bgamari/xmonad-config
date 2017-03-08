@@ -1,0 +1,9 @@
+packages:
+    /opt/exp/haskell-packages/taffybar
+    /opt/exp/haskell-packages/gtk2hs/{glib,gio,gtk,pango,cairo}
+    /opt/exp/haskell-packages/X11
+    /opt/exp/haskell-packages/xmonad
+    /opt/exp/haskell-packages/xmonad-contrib
+    ./
+
+library-profiling: False
