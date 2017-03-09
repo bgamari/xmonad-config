@@ -30,7 +30,7 @@ executable xmonad-ben
   hs-source-dirs:      ., lib
   default-language:    Haskell2010
 
-executable taffybar
+executable taffybar-ben
   main-is:             taffybar.hs
   other-extensions:    OverloadedStrings
   build-depends:       base >=4.7 && <4.10,
@@ -43,5 +43,6 @@ executable taffybar
                        taffybar,
                        gtk,
                        colour
+  ghc-options:         -with-rtsopts=-N2 -threaded
   hs-source-dirs:      taffybar
   default-language:    Haskell2010
