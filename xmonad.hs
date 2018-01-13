@@ -351,9 +351,6 @@ setupBrightnessKeys =
 -- Run xmonad with the settings you specify. No need to modify this.
 --
 main = do
-    spawn "compton --backend glx -b"
-    spawn "taffybar-ben"
-    spawn "arbtt-capture"
     volumeKeys <- runExceptT setupVolumeKeys >>= either (\err->print ("no volume keys: "++err) >> return M.empty) return
     mediaKeys <- runExceptT setupMediaKeys >>= either (\err->print ("no media keys: "++err) >> return M.empty) return
     brightnessKeys <- runExceptT setupBrightnessKeys >>= either (\err->print ("no brightness keys: "++err) >> return M.empty) return

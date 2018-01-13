@@ -27,8 +27,14 @@ in {
       with self; [ errors dbus split data-default-instances-containers ];
   };
 
-  environment.systemPackages = [
-    #xmonad-ben
-    haskellPackages.taffybar-ben
-  ];
+  systemd.user.services.taffybar = {
+    description = "Taffybar";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${haskellPackages.taffybar-ben}/bin/taffybar";
+      RestartSec = 3;
+      Restart = "always";
+    };
+  };
 }
