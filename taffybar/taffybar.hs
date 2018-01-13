@@ -44,6 +44,7 @@ mailCallback = do
     then return $ "✉ " ++ colorize "blue" "" n
     else return ""
 
+main :: IO ()
 main = do
   let memCfg = defaultGraphConfig { graphDataColors = [(1, 0, 0, 1)]
                                   , graphLabel = Nothing
