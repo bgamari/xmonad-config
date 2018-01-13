@@ -66,4 +66,15 @@ in {
       Restart = "always";
     };
   };
+
+  systemd.user.services.nm-applet = {
+    description = "network-manager applet";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet";
+      RestartSec = 3;
+      Restart = "always";
+    };
+  };
 }
