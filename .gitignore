@@ -1,0 +1,8 @@
+*.hi
+*.o
+dist/
+dist-newstyle/
+history
+prompt-history
+bin/
+TAGS
