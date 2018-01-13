@@ -18,6 +18,7 @@ import qualified Data.Map        as M
 
 import XMonad.Util.Run
 import XMonad.Prompt
+import XMonad.Prompt.Unicode
 
 import XMonad.Layout.LimitWindows
 import XMonad.Layout.WorkspaceDir
