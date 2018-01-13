@@ -9,6 +9,13 @@ let
     };
   };
 in {
+  environment.systemPackages = with pkgs; [
+    gmrun
+  ];
+
+  services.arbtt.enable = true;
+  services.compton.enable = true;
+
   services.xserver.windowManager = {
     session = [{
       name = "xmonad-ben";
@@ -32,7 +39,7 @@ in {
     wantedBy = [ "graphical-session.target" ];
     partOf = [ "graphical-session.target" ];
     serviceConfig = {
-      ExecStart = "${haskellPackages.taffybar-ben}/bin/taffybar";
+      ExecStart = "${haskellPackages.taffybar-ben}/bin/taffybar-ben";
       RestartSec = 3;
       Restart = "always";
     };
@@ -44,6 +51,17 @@ in {
     partOf = [ "graphical-session.target" ];
     serviceConfig = {
       ExecStart = "${pkgs.gnome3.gnome_settings_daemon}/libexec/gsd-xsettings";
+      RestartSec = 3;
+      Restart = "always";
+    };
+  };
+
+  systemd.user.services.blueman-applet = {
+    description = "blueman";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.blueman}/bin/blueman-applet";
       RestartSec = 3;
       Restart = "always";
     };
