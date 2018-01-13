@@ -37,4 +37,15 @@ in {
       Restart = "always";
     };
   };
+
+  systemd.user.services.gnome-settings-daemon = {
+    description = "gnome-settings-daemon";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.gnome3.gnome_settings_daemon}/libexec/gsd-xsettings";
+      RestartSec = 3;
+      Restart = "always";
+    };
+  };
 }
