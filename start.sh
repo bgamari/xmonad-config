@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 17 June 2016: Use Xinput2 for drag scrolling
+export MOZ_USE_XINPUT2=1
+
 export WINDOW_MANAGER=xmonad
 export UBUNTU_MENUPROXY=
 PATH=$HOME/.cabal/bin:$PATH
@@ -14,5 +17,4 @@ system-config-printer-applet &
 blueman-applet &
 xdg-user-dirs-gtk-update
 $HOME/.xmonad/set-bg.sh
-exec xmonad
-
+exec xmonad-ben

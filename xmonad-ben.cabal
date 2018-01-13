@@ -3,6 +3,7 @@ version:             0.1.0.0
 author:              Ben Gamari
 maintainer:          bgamari@gmail.com
 build-type:          Simple
+license:             BSD3
 cabal-version:       >=1.10
 
 flag taffybar
