@@ -2,6 +2,12 @@
 
 let
   xmonad-ben = pkgs.callPackage (import ./.) {};
+  haskellPackages = pkgs.haskell.packages.ghc802.override {
+    overrides = self: super: {
+      taffybar = self.callCabal2nix "taffybar" ./taffybar.git { gtk2 = pkgs.gtk2; };
+      taffybar-ben = self.callCabal2nix "taffybar-ben" ./taffybar {};
+    };
+  };
 in {
   services.xserver.windowManager = {
     session = [{
@@ -16,14 +22,13 @@ in {
   services.xserver.windowManager.xmonad = {
     enable = true;
     enableContribAndExtras = true;
-    #haskellPackages = pkgs.haskell.packages.ghc822;
+    inherit haskellPackages;
     extraPackages = self:
-      let 
-        taffybar-ben = self.callCabal2nix "taffybar" ./taffybar.git { gtk2 = pkgs.gtk2; };
-      in with self; [ errors dbus split data-default-instances-containers taffybar-ben ];
+      with self; [ errors dbus split data-default-instances-containers ];
   };
 
   environment.systemPackages = [
     #xmonad-ben
+    haskellPackages.taffybar-ben
   ];
 }
