@@ -9,22 +9,14 @@ let
     };
   };
 in {
-  environment.systemPackages = with pkgs; [
-    gmrun
-  ];
+  environment.systemPackages = with pkgs; [ gmrun ];
 
   services.arbtt.enable = true;
   services.compton.enable = true;
+  services.gnome3.gnome-keyring.enable = true;
 
-  services.xserver.windowManager = {
-    session = [{
-      name = "xmonad-ben";
-      start = ''
-        ${xmonad-ben}/start.sh &
-        waitPID=$!
-      '';
-    }];
-  };
+  # 17 June 2016: Use Xinput2 for drag scrolling
+  environment.variables.MOZ_USE_XINPUT2 = "1";
 
   services.xserver.windowManager.xmonad = {
     enable = true;
@@ -34,47 +26,43 @@ in {
       with self; [ errors dbus split data-default-instances-containers ];
   };
 
-  systemd.user.services.taffybar = {
-    description = "Taffybar";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    serviceConfig = {
-      ExecStart = "${haskellPackages.taffybar-ben}/bin/taffybar-ben";
-      RestartSec = 3;
-      Restart = "always";
-    };
-  };
+  systemd.user.services =
+    let
+      template = {description, cmd, enable ? true} : {
+        inherit description enable;
+        wantedBy = [ "graphical-session.target" ];
+        partOf = [ "graphical-session.target" ];
+        serviceConfig = {
+          ExecStart = cmd;
+          RestartSec = 3;
+          Restart = "always";
+        };
+      };
+    in {
+      taffybar = template {
+        description = "Taffybar";
+        cmd = "${haskellPackages.taffybar-ben}/bin/taffybar-ben";
+      };
 
-  systemd.user.services.gnome-settings-daemon = {
-    description = "gnome-settings-daemon";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.gnome3.gnome_settings_daemon}/libexec/gsd-xsettings";
-      RestartSec = 3;
-      Restart = "always";
-    };
-  };
+      gnome-settings-daemon = template {
+        enable = false;
+        description = "gnome-settings-daemon";
+        cmd = "${pkgs.gnome3.gnome_settings_daemon}/libexec/gsd-xsettings";
+      };
 
-  systemd.user.services.blueman-applet = {
-    description = "blueman";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.blueman}/bin/blueman-applet";
-      RestartSec = 3;
-      Restart = "always";
-    };
-  };
+      blueman-applet = template {
+        description = "blueman";
+        cmd = "${pkgs.blueman}/bin/blueman-applet";
+      };
 
-  systemd.user.services.nm-applet = {
-    description = "network-manager applet";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet";
-      RestartSec = 3;
-      Restart = "always";
+      nm-applet = template {
+        description = "network-manager applet";
+        cmd = "${pkgs.networkmanagerapplet}/bin/nm-applet";
+      };
+
+      printer-applet = template {
+        description = "printer applet";
+        cmd = "${pkgs.networkmanagerapplet}/bin/nm-applet";
+      };
     };
-  };
 }
