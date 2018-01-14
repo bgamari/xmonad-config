@@ -183,7 +183,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. controlMask, xK_u      ), unicodePrompt myXPConfig)
 
     -- Quit xmonad
-    , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
+    , ((modm .|. shiftMask, xK_q     ), io $ do exitWith ExitSuccess
+                                                spawn "gnome-session-quit --logout --no-prompt"
+      )
 
     -- Restart xmonad
     , ((modm              , xK_q     ), spawn "/home/ben/.xmonad/xmonad --restart")

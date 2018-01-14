@@ -9,7 +9,7 @@ let
     };
   };
 in {
-  environment.systemPackages = with pkgs; [ gmrun ];
+  environment.systemPackages = with pkgs; [ gmrun gnome3.gnome_session ];
 
   services.arbtt.enable = true;
   services.compton.enable = true;
