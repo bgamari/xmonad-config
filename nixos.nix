@@ -4,8 +4,8 @@ let
   xmonad-ben = pkgs.callPackage (import ./.) {};
   haskellPackages = pkgs.haskell.packages.ghc802.override {
     overrides = self: super: {
-      taffybar = self.callCabal2nix "taffybar" ./taffybar.git { gtk2 = pkgs.gtk2; };
-      taffybar-ben = self.callCabal2nix "taffybar-ben" ./taffybar {};
+      taffybar = self.callCabal2nix "taffybar" ./taffybar { gtk2 = pkgs.gtk2; };
+      taffybar-ben = self.callCabal2nix "taffybar-ben" ./taffybar-ben {};
     };
   };
 in {

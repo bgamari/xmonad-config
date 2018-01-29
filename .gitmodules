@@ -1,0 +1,3 @@
+[submodule "taffybar"]
+	path = taffybar
+	url = git@github.com:bgamari/taffybar.git
