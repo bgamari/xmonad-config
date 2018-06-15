@@ -11,9 +11,18 @@ let
 in {
   environment.systemPackages = with pkgs; [ gmrun gnome3.gnome_session ];
 
-  services.arbtt.enable = true;
-  services.compton.enable = true;
   services.gnome3.gnome-keyring.enable = true;
+  services.arbtt.enable = true;
+
+  services.compton = {
+    enable = true;
+    vSync = "drm";
+    extraOptions = ''
+      # Otherwise emacs fails to redraw
+      xrender-sync = true;
+      paint-on-overlay = true;
+    '';
+  };
 
   # 17 June 2016: Use Xinput2 for drag scrolling
   environment.variables.MOZ_USE_XINPUT2 = "1";
