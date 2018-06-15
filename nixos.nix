@@ -71,7 +71,7 @@ in {
 
       printer-applet = template {
         description = "printer applet";
-        cmd = "${pkgs.networkmanagerapplet}/bin/nm-applet";
+        cmd = "${pkgs.system-config-printer}/bin/system-config-printer-applet";
       };
     };
 }
