@@ -7,7 +7,7 @@ license:             BSD3
 cabal-version:       >=1.10
 
 flag taffybar
-  default: False
+  default: True
 
 executable xmonad-ben
   main-is:             xmonad.hs
@@ -15,7 +15,7 @@ executable xmonad-ben
   build-depends:       base >=4.7 && <4.13,
                        transformers >=0.4 && <0.6,
                        errors >=1.4 && <3.0,
-                       dbus >=0.10 && <0.11,
+                       dbus >=1.0 && <2.0,
                        stm >=2.4 && <2.5,
                        containers >=0.5 && <0.6,
                        process >=1.2 && <1.7,

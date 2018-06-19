@@ -1,12 +1,10 @@
 { config, pkgs, ... }:
 
 let
-  haskellPackages = pkgs.haskell.packages.ghc802.override {
-    overrides = self: super: {
-      xmonad-ben = pkgs.callPackage (import ./xmonad-ben) {};
-      taffybar-ben = import ./taffybar-ben {};
-    };
-  };
+  haskellPackages =
+    let pkgs = import /home/ben/.nix-overlay/nixpkgs {};
+    in pkgs.callPackage (import ./default.nix) {};
+
 in {
   environment.systemPackages = with pkgs; [ gmrun gnome3.gnome_session ];
 

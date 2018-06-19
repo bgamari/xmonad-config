@@ -7,6 +7,7 @@ import Data.List (isInfixOf)
 import Control.Monad (void, filterM)
 import Control.Monad.IO.Class
 import Control.Error
+import System.Environment (getExecutablePath)
 import System.Exit
 
 import Graphics.X11.ExtraTypes.XF86
@@ -35,7 +36,7 @@ import XMonad.Actions.CycleWS
 
 import XMonad.Hooks.EwmhDesktops (ewmh)
 #ifdef TAFFYBAR
-import System.Taffybar.Hooks.PagerHints (pagerHints)
+import System.Taffybar.Support.PagerHints (pagerHints)
 #endif
 
 import MPRIS2
@@ -186,7 +187,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
       )
 
     -- Restart xmonad
-    , ((modm              , xK_q     ), spawn "/home/ben/.xmonad/xmonad --restart")
+    , ((modm              , xK_q     ), do execPath <- io getExecutablePath
+                                           spawn $ unwords [ execPath, "--restart" ]
+      )
     ]
     ++
 

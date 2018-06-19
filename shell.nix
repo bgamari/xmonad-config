@@ -1,5 +1,5 @@
 let
-  nixpkgs = import ~/.nix-overlay/nixpkgs {};
+  nixpkgs = import /home/ben/.nix-overlay/nixpkgs {};
 in
   nixpkgs.callPackage (import ./default.nix) {
     inherit (nixpkgs) stdenv haskell;
