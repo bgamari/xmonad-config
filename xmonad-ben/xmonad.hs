@@ -178,7 +178,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_d        ), changeDir myXPConfig)
 
     -- Unicode character search
-    , ((modm .|. controlMask, xK_u      ), unicodePrompt myXPConfig)
+    , ((modm .|. controlMask, xK_u      ), unicodePrompt "> " myXPConfig)
 
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io $ do exitWith ExitSuccess
