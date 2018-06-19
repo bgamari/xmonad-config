@@ -1,8 +1,6 @@
 {-# LANGUAGE ParallelListComp #-}
 {-# LANGUAGE CPP #-}
 
-#define TAFFYBAR 1
-
 import XMonad
 import Data.Monoid
 import Data.List (isInfixOf)

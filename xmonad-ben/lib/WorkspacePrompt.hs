@@ -1,7 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module WorkspacePrompt ( selectWorkspace ) where
 
-import Data.Monoid
+import Data.Semigroup
 import Data.List (sortBy, isInfixOf, isPrefixOf)
 import Data.List.Split (splitWhen)
 import Data.Char (isAlphaNum)
@@ -50,9 +50,12 @@ mkHelmComplFunFromList compls = \query ->
 newtype Score = Score Int
               deriving (Eq)
 
+instance Semigroup Score where
+    Score x <> Score y = Score (x + y)
+
 instance Monoid Score where
     mempty = Score 0
-    Score x `mappend` Score y = Score (x + y)
+    mappend = (<>)
 
 instance Ord Score where
     Score x `compare` Score y = y `compare` x
