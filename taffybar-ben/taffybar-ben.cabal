@@ -10,12 +10,13 @@ cabal-version:       >=1.10
 
 executable taffybar-ben
   main-is:             taffybar.hs
-  ghc-options:         -threaded
-  build-depends:       base >=4.9 && <4.11,
+  ghc-options:         -threaded -with-rtsopts=-I0 -with-rtsopts=-qn0 -with-rtsopts=-s -rtsopts
+  build-depends:       base >=4.9 && <4.13,
                        mtl,
                        text,
                        colour,
-                       gtk,
+                       hslogger,
+                       gtk3,
                        process,
                        taffybar
   default-language:    Haskell2010
