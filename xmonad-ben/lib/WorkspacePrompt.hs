@@ -42,10 +42,12 @@ mkHelmComplFunFromList compls = \query ->
             in if all isInfixMatch queryParts
                    then foldMap (scoreOf (Score 1) . isInfixMatch) queryParts <> foldMap prefixMatch queryParts
                    else mempty
-    in map snd
-       $ sortBy compare
-       $ filter (\(s,_) -> s /= mempty)
-       $ map (\x -> (completionScore x, x)) compls
+    in if null query
+       then compls
+       else map snd
+          $ sortBy compare
+          $ filter (\(s,_) -> s /= mempty)
+          $ map (\x -> (completionScore x, x)) compls
 
 newtype Score = Score Int
               deriving (Eq)
