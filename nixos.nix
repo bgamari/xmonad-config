@@ -6,7 +6,7 @@ let
     in pkgs.callPackage (import ./default.nix) { haskellPackages = pkgs.haskell.packages.ghc843;};
 
 in {
-  environment.systemPackages = with pkgs; [ gmrun gnome3.gnome_session ];
+  environment.systemPackages = with pkgs; [ gmrun gnome3.gnome_session xorg.xmessage ];
 
   services.gnome3.gnome-keyring.enable = true;
   services.arbtt.enable = true;
