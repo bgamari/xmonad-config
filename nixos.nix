@@ -35,8 +35,8 @@ in {
 
   systemd.user.services =
     let
-      template = {description, cmd, enable ? true, requires ? []} : {
-        inherit description enable requires;
+      template = {description, cmd, enable ? true, requires ? [], environment ? {}} : {
+        inherit description enable requires environment;
         wantedBy = [ "graphical-session.target" ];
         partOf = [ "graphical-session.target" ];
         serviceConfig = {
@@ -48,8 +48,12 @@ in {
     in {
       taffybar = template {
         description = "Taffybar";
-        cmd = "${haskellPackages.taffybar-ben}/bin/taffybar-ben";
+        cmd = "${pkgs.strace}/bin/strace ${haskellPackages.taffybar-ben}/bin/taffybar-ben";
         requires = [ "status-notifier-watcher.service" ];
+        environment = {
+          # otherwise it crashes due to missing icons
+          XDG_DATA_DIRS = "/run/current-system/sw/share";
+        };
       };
 
       status-notifier-watcher = template {
