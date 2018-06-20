@@ -182,12 +182,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. controlMask, xK_u      ), unicodePrompt "> " myXPConfig)
 
     -- Quit xmonad
-    , ((modm .|. shiftMask, xK_q     ), io $ do exitWith ExitSuccess
-                                                spawn "gnome-session-quit --logout --no-prompt"
+    , ((modm .|. shiftMask, xK_q     ), io $ do spawn "gnome-session-quit --logout --no-prompt"
+                                                exitWith ExitSuccess
       )
 
     -- Restart xmonad
     , ((modm              , xK_q     ), do execPath <- io getExecutablePath
+                                           spawn $ unwords [ execPath, "--recompile" ]
                                            spawn $ unwords [ execPath, "--restart" ]
       )
     ]
