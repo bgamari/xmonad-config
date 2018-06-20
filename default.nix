@@ -20,6 +20,10 @@ let
       gi-dbusmenugtk3 = addPkgconfigDepend (self.callHackage "gi-dbusmenugtk3" "0.4.2" {
         dbusmenu-gtk3 = libdbusmenu-gtk3;
       }) gtk3;
+      
+      # To satisfy xmonad-with-packages
+      hint = self.callHackage "hint" "0.8.0" {};
+      exceptions = self.callHackage "exceptions" "0.10.0" {};
 
       # N.B. taffybar segfaults without profiling
       taffybar-ben = enableExecutableProfiling (enableDWARFDebugging (self.callCabal2nix "taffybar-ben" ./taffybar-ben {}));

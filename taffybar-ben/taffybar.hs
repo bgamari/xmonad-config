@@ -5,6 +5,7 @@ import System.Taffybar
 import System.Taffybar.Hooks
 import System.Taffybar.SimpleConfig
 import System.Taffybar.Widget
+import System.Taffybar.Widget.FreedesktopNotifications
 import System.Taffybar.Widget.Generic.PollingLabel
 import System.Taffybar.Widget.Util
 import System.Taffybar.Widget.Workspaces
@@ -32,7 +33,7 @@ main = do
       windows = windowsNew defaultWindowsConfig
           -- See https://github.com/taffybar/gtk-sni-tray#statusnotifierwatcher
           -- for a better way to set up the sni tray
-      tray = sniTrayThatStartsWatcherEvenThoughThisIsABadWayToDoIt
+      tray = sniTrayNew
       myConfig = defaultSimpleTaffyConfig
         { startWidgets =
             workspaces :
@@ -41,6 +42,7 @@ main = do
           [ batteryIconNew
           , clock
           , tray
+          , notifyAreaNew defaultNotificationConfig
           , mpris2New
           ]
         , barPosition = Top

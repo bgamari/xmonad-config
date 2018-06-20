@@ -10,7 +10,7 @@ cabal-version:       >=1.10
 
 executable taffybar-ben
   main-is:             taffybar.hs
-  ghc-options:         -threaded -with-rtsopts=-I0 -with-rtsopts=-qn0 -with-rtsopts=-s -rtsopts
+  ghc-options:         -threaded "-with-rtsopts=-I0 -V0 -qg -s" -rtsopts
   build-depends:       base >=4.9 && <4.13,
                        mtl,
                        text,

@@ -3,7 +3,7 @@
 let
   haskellPackages =
     let pkgs = import /home/ben/.nix-overlay/nixpkgs {};
-    in pkgs.callPackage (import ./default.nix) {};
+    in pkgs.callPackage (import ./default.nix) { haskellPackages = pkgs.haskell.packages.ghc843;};
 
 in {
   environment.systemPackages = with pkgs; [ gmrun gnome3.gnome_session ];
@@ -13,7 +13,8 @@ in {
 
   services.compton = {
     enable = true;
-    vSync = "drm";
+    backend = "glx";
+    vSync = "opengl-swc";
     extraOptions = ''
       # Otherwise emacs fails to redraw
       xrender-sync = true;
@@ -34,8 +35,8 @@ in {
 
   systemd.user.services =
     let
-      template = {description, cmd, enable ? true} : {
-        inherit description enable;
+      template = {description, cmd, enable ? true, requires ? []} : {
+        inherit description enable requires;
         wantedBy = [ "graphical-session.target" ];
         partOf = [ "graphical-session.target" ];
         serviceConfig = {
@@ -48,6 +49,18 @@ in {
       taffybar = template {
         description = "Taffybar";
         cmd = "${haskellPackages.taffybar-ben}/bin/taffybar-ben";
+        requires = [ "status-notifier-watcher.service" ];
+      };
+
+      status-notifier-watcher = template {
+        description = "Status notifier watcher";
+        cmd = "${haskellPackages.status-notifier-item}/bin/status-notifier-watcher";
+      };
+
+      # For HexChat, blueman, et al.
+      xembed-sni-proxy = template {
+        description = "XEmbed SNI proxy";
+        cmd = "${pkgs.plasma5.plasma-workspace}/bin/xembedsniproxy";
       };
 
       gnome-settings-daemon = template {
@@ -58,17 +71,17 @@ in {
 
       blueman-applet = template {
         description = "blueman";
-        cmd = "${pkgs.blueman}/bin/blueman-applet";
+        cmd = "${pkgs.blueman}/bin/blueman-applet --indicator";
       };
 
       nm-applet = template {
         description = "network-manager applet";
-        cmd = "${pkgs.networkmanagerapplet}/bin/nm-applet";
+        cmd = "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator --sm-disable";
       };
 
       printer-applet = template {
         description = "printer applet";
-        cmd = "${pkgs.system-config-printer}/bin/system-config-printer-applet";
+        cmd = "${pkgs.system-config-printer}/bin/system-config-printer-applet --indicator";
       };
     };
 }
