@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+# see https://github.com/xmonad/xmonad-testing
+nix build -f shell.nix xmonad-ben
+ln -f -s $(readlink result)/bin/xmonad-ben $1
