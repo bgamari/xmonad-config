@@ -14,11 +14,11 @@ in {
   services.compton = {
     enable = true;
     backend = "glx";
-    vSync = "opengl-swc";
+    vSync = "opengl";
     extraOptions = ''
       # Otherwise emacs fails to redraw
-      xrender-sync = true;
-      paint-on-overlay = true;
+      #xrender-sync = true;
+      #paint-on-overlay = true;
     '';
   };
 
