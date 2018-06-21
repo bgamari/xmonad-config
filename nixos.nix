@@ -6,7 +6,9 @@ let
     in pkgs.callPackage (import ./default.nix) { haskellPackages = pkgs.haskell.packages.ghc843;};
 
 in {
-  environment.systemPackages = with pkgs; [ gmrun gnome3.gnome_session xorg.xmessage ];
+  environment.systemPackages = with pkgs; [ 
+    gmrun gnome3.gnome_session xorg.xmessage mattermost-desktop 
+  ];
 
   services.gnome3.gnome-keyring.enable = true;
   services.arbtt.enable = true;
@@ -35,12 +37,11 @@ in {
 
   systemd.user.services =
     let
-      template = {description, cmd ? null, script ? null, enable ? true, requires ? [], environment ? {}} : {
-        inherit description enable requires environment;
+      template = {description, script, enable ? true, requires ? [], environment ? {}} : {
+        inherit description script enable requires environment;
         wantedBy = [ "graphical-session.target" ];
         partOf = [ "graphical-session.target" ];
         serviceConfig = {
-          ExecStart = cmd;
           RestartSec = 3;
           Restart = "always";
         };
@@ -48,7 +49,7 @@ in {
     in {
       taffybar = template {
         description = "Taffybar";
-        cmd = "${haskellPackages.taffybar-ben}/bin/taffybar-ben";
+        script = "${haskellPackages.taffybar-ben}/bin/taffybar-ben";
         requires = [ "status-notifier-watcher.service" ];
         environment = {
           # otherwise it crashes due to missing icons
@@ -58,13 +59,13 @@ in {
 
       status-notifier-watcher = template {
         description = "Status notifier watcher";
-        cmd = "${haskellPackages.status-notifier-item}/bin/status-notifier-watcher";
+        script = "${haskellPackages.status-notifier-item}/bin/status-notifier-watcher";
       };
 
       # For HexChat, blueman, et al.
       xembed-sni-proxy = template {
         description = "XEmbed SNI proxy";
-        cmd = "${pkgs.strace}/bin/strace ${pkgs.plasma5.plasma-workspace}/bin/xembedsniproxy";
+        script = "${pkgs.strace}/bin/strace ${pkgs.plasma5.plasma-workspace}/bin/xembedsniproxy";
         environment = {
           # otherwise it crashes due to missing icons
           XDG_DATA_DIRS = "/run/current-system/sw/share";
@@ -74,22 +75,22 @@ in {
       gnome-settings-daemon = template {
         enable = false;
         description = "gnome-settings-daemon";
-        cmd = "${pkgs.gnome3.gnome_settings_daemon}/libexec/gsd-xsettings";
+        script = "${pkgs.gnome3.gnome_settings_daemon}/libexec/gsd-xsettings";
       };
 
       blueman-applet = template {
         description = "blueman";
-        cmd = "${pkgs.blueman}/bin/blueman-applet --indicator";
+        script = "${pkgs.blueman}/bin/blueman-applet --indicator";
       };
 
       nm-applet = template {
         description = "network-manager applet";
-        cmd = "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator --sm-disable";
+        script = "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator --sm-disable";
       };
 
       printer-applet = template {
         description = "printer applet";
-        cmd = "${pkgs.system-config-printer}/bin/system-config-printer-applet";
+        script = "${pkgs.system-config-printer}/bin/system-config-printer-applet";
       };
 
       dunst = template {
