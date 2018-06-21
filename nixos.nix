@@ -35,7 +35,7 @@ in {
 
   systemd.user.services =
     let
-      template = {description, cmd, enable ? true, requires ? [], environment ? {}} : {
+      template = {description, cmd ? null, script ? null, enable ? true, requires ? [], environment ? {}} : {
         inherit description enable requires environment;
         wantedBy = [ "graphical-session.target" ];
         partOf = [ "graphical-session.target" ];
@@ -48,7 +48,7 @@ in {
     in {
       taffybar = template {
         description = "Taffybar";
-        cmd = "${pkgs.strace}/bin/strace ${haskellPackages.taffybar-ben}/bin/taffybar-ben";
+        cmd = "${haskellPackages.taffybar-ben}/bin/taffybar-ben";
         requires = [ "status-notifier-watcher.service" ];
         environment = {
           # otherwise it crashes due to missing icons
@@ -64,7 +64,11 @@ in {
       # For HexChat, blueman, et al.
       xembed-sni-proxy = template {
         description = "XEmbed SNI proxy";
-        cmd = "${pkgs.plasma5.plasma-workspace}/bin/xembedsniproxy";
+        cmd = "${pkgs.strace}/bin/strace ${pkgs.plasma5.plasma-workspace}/bin/xembedsniproxy";
+        environment = {
+          # otherwise it crashes due to missing icons
+          XDG_DATA_DIRS = "/run/current-system/sw/share";
+        };
       };
 
       gnome-settings-daemon = template {
@@ -85,7 +89,12 @@ in {
 
       printer-applet = template {
         description = "printer applet";
-        cmd = "${pkgs.system-config-printer}/bin/system-config-printer-applet --indicator";
+        cmd = "${pkgs.system-config-printer}/bin/system-config-printer-applet";
+      };
+
+      dunst = template {
+        description = "dunst notification daemon";
+        script = "${pkgs.dunst}/bin/dunst -conf ${./dunstrc}";
       };
     };
 }

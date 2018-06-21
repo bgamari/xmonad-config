@@ -42,7 +42,6 @@ main = do
           [ batteryIconNew
           , clock
           , tray
-          , notifyAreaNew defaultNotificationConfig { notificationMaxTimeout = Just 60 }
           , mpris2New
           ]
         , barPosition = Top
