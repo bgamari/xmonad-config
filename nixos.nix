@@ -37,11 +37,12 @@ in {
 
   systemd.user.services =
     let
-      template = {description, script, enable ? true, requires ? [], environment ? {}} : {
+      template = {description, script, enable ? true, requires ? [], environment ? {}, type ? "simple"} : {
         inherit description script enable requires environment;
         wantedBy = [ "graphical-session.target" ];
         partOf = [ "graphical-session.target" ];
         serviceConfig = {
+          Type = type;
           RestartSec = 3;
           Restart = "always";
         };
@@ -96,6 +97,12 @@ in {
       dunst = template {
         description = "dunst notification daemon";
         script = "${pkgs.dunst}/bin/dunst -conf ${./dunstrc}";
+      };
+
+      set-background = template {
+        description = "set background color";
+        script = "xsetroot -solid midnightblue";
+        type = "oneshot";
       };
     };
 }
