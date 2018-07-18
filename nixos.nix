@@ -99,6 +99,11 @@ in {
         script = "${pkgs.dunst}/bin/dunst -conf ${./dunstrc}";
       };
 
+      redshift = template {
+        description = "redshift daemon";
+        script = "${pkgs.redshift}/bin/redshift-gtk";
+      };
+
       set-background = template {
         description = "set background color";
         script = "xsetroot -solid midnightblue";
