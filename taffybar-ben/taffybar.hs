@@ -1,6 +1,7 @@
 -- -*- mode:haskell -*-
 module Main where
 
+import System.FilePath
 import System.Taffybar
 import System.Taffybar.Hooks
 import System.Taffybar.SimpleConfig
@@ -11,7 +12,10 @@ import System.Taffybar.Widget.Util
 import System.Taffybar.Widget.Workspaces
 import System.Log.Logger
 
+import Paths_taffybar_ben ( getDataDir )
+
 main = do
+  cssPath <- (</> "taffybar.css") <$> getDataDir
   let myWorkspacesConfig =
         defaultWorkspacesConfig
         { minIcons = 0
@@ -48,6 +52,7 @@ main = do
         , barPadding = 0
         , barHeight = 25
         , widgetSpacing = 0
+        , cssPath = Just cssPath
         }
   --dyreTaffybar $ withBatteryRefresh $ withLogServer $ withToggleServer $
   --             toTaffyConfig myConfig

@@ -7,13 +7,16 @@ copyright:           (c) 2018 Ben Gamari
 build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
+data-files:          taffybar.css
 
 executable taffybar-ben
   main-is:             taffybar.hs
   ghc-options:         -threaded "-with-rtsopts=-I0 -V0 -qg -s" -rtsopts
+  other-modules:       Paths_taffybar_ben
   build-depends:       base >=4.9 && <4.13,
                        mtl,
                        text,
+                       filepath,
                        colour,
                        hslogger,
                        process,
