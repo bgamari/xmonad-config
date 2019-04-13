@@ -9,13 +9,15 @@ cabal-version:       >=1.10
 flag taffybar
   default: True
 
+flag dbus
+  default: False
+
 executable xmonad-ben
   main-is:             xmonad.hs
   other-extensions:    OverloadedStrings
   build-depends:       base >=4.7 && <4.13,
                        transformers >=0.4 && <0.6,
                        errors >=1.4 && <3.0,
-                       dbus >=1.0 && <2.0,
                        stm >=2.4 && <2.6,
                        containers >=0.5 && <0.7,
                        process >=1.2 && <1.7,
@@ -24,6 +26,10 @@ executable xmonad-ben
                        split,
                        xmonad >= 0.12,
                        xmonad-contrib >= 0.12
+  if flag(dbus)
+    build-depends:     dbus >=1.0 && <2.0
+    cpp-options:       -DDBUS
+
   if flag(taffybar)
     build-depends:       taffybar
     cpp-options:         -DTAFFYBAR

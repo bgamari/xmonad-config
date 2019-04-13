@@ -39,12 +39,14 @@ import XMonad.Hooks.EwmhDesktops (ewmh)
 import System.Taffybar.Support.PagerHints (pagerHints)
 #endif
 
-import MPRIS2
+#ifdef DBUS
 import TrackPlayers
-import qualified PulseAudio as PA
 import Brightness
+import qualified PulseAudio as PA
+import MPRIS2
 import DBus
 import DBus.Client
+#endif
 
 #ifndef TAFFYBAR
 pagerHints = id
@@ -306,6 +308,9 @@ noteExceptT action = runExceptT action >>= either f (return . Just)
 
 setupVolumeKeys :: ExceptT String IO (M.Map (ButtonMask, KeySym) (X ()))
 setupVolumeKeys = do
+#ifndef DBUS
+    return mempty
+#else
     pulse <- PA.connect
     devices <- PA.getDevices pulse
     matching <- filterM (\dev->not . ("hdmi" `isInfixOf`) <$> PA.getDeviceName pulse dev) devices
@@ -318,9 +323,13 @@ setupVolumeKeys = do
       , ( (0, xF86XK_AudioMute)
         , void $ io $ noteExceptT $ PA.toggleDeviceMute pulse device )
       ]
+#endif
 
 setupMediaKeys :: ExceptT String IO (M.Map (ButtonMask, KeySym) (X ()))
 setupMediaKeys = do
+#ifndef DBUS
+    return mempty
+#else
     session <- liftIO connectSession
     playerList <- trackPlayers session
     return $ M.fromList
@@ -339,15 +348,20 @@ setupMediaKeys = do
       , ( (controlMask, xF86XK_AudioPlay)
         , void $ io $ noteExceptT $ withActivePlayer playerList $ playPause session)
       ]
+#endif
 
 setupBrightnessKeys :: ExceptT String IO (M.Map (ButtonMask, KeySym) (X()))
 setupBrightnessKeys =
+#ifndef DBUS
+    return mempty
+#else
     return $ M.fromList
       [ ( (0, xF86XK_MonBrightnessDown)
         , void $ io $ noteExceptT $ modifyBrightness Down)
       , ( (0, xF86XK_MonBrightnessUp)
         , void $ io $ noteExceptT $ modifyBrightness Up)
       ]
+#endif
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
@@ -358,7 +372,9 @@ main = do
     volumeKeys <- runExceptT setupVolumeKeys >>= either (\err->print ("no volume keys: "++err) >> return M.empty) return
     mediaKeys <- runExceptT setupMediaKeys >>= either (\err->print ("no media keys: "++err) >> return M.empty) return
     brightnessKeys <- runExceptT setupBrightnessKeys >>= either (\err->print ("no brightness keys: "++err) >> return M.empty) return
+#ifdef DBUS
     dbus <- runMaybeT $ hushT $ tryIO $ connectSession
+#endif
     let pp = defaultPP
 
     xmonad

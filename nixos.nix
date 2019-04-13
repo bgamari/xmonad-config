@@ -1,27 +1,41 @@
 { config, pkgs, ... }:
 
 let
+  /*hamsterPackages = pkgs.callPackage (import ./hamster.nix) {
+    pythonPackages = pkgs.python3Packages;
+    inherit pkgs;
+  };*/
+
   haskellPackages =
-    let pkgs = import /home/ben/.nix-overlay/nixpkgs {};
-    in pkgs.callPackage (import ./default.nix) { haskellPackages = pkgs.haskell.packages.ghc843;};
+    let pkgs2 = import ./nixpkgs.nix {};
+    in pkgs.callPackage (import ./default.nix) { haskellPackages = pkgs.haskell.packages.ghc864;};
 
 in {
-  environment.systemPackages = with pkgs; [ 
-    gmrun gnome3.gnome_session xorg.xmessage mattermost-desktop 
+  environment.systemPackages = with pkgs; [
+    neovim-qt gmrun gnome3.gnome_session xorg.xmessage mattermost-desktop
   ];
 
   services.gnome3.gnome-keyring.enable = true;
   services.arbtt.enable = true;
+  services.arbtt.package = pkgs.haskell.lib.doJailbreak pkgs.haskellPackages.arbtt;
+
+  services.geoclue2.enable = true;
+  services.redshift = {
+    enable = true;
+    provider = "manual";
+    latitude  = "43.0755";
+    longitude = "-70.760";
+  };
 
   services.compton = {
     enable = true;
-    backend = "glx";
-    vSync = "opengl";
-    extraOptions = ''
-      # Otherwise emacs fails to redraw
-      #xrender-sync = true;
-      #paint-on-overlay = true;
-    '';
+    #backend = "glx";
+    #vSync = "opengl";
+    #extraOptions = ''
+    #  # Otherwise emacs fails to redraw
+    #  xrender-sync = true;
+    #  paint-on-overlay = true;
+    #'';
   };
 
   # 17 June 2016: Use Xinput2 for drag scrolling
@@ -59,12 +73,14 @@ in {
       };
 
       status-notifier-watcher = template {
+        #enable = false;
         description = "Status notifier watcher";
         script = "${haskellPackages.status-notifier-item}/bin/status-notifier-watcher";
       };
 
       # For HexChat, blueman, et al.
       xembed-sni-proxy = template {
+        enable = false; # inexplicably doesn't start under systemd
         description = "XEmbed SNI proxy";
         script = "${pkgs.strace}/bin/strace ${pkgs.plasma5.plasma-workspace}/bin/xembedsniproxy";
         environment = {
@@ -97,11 +113,6 @@ in {
       dunst = template {
         description = "dunst notification daemon";
         script = "${pkgs.dunst}/bin/dunst -conf ${./dunstrc}";
-      };
-
-      redshift = template {
-        description = "redshift daemon";
-        script = "${pkgs.redshift}/bin/redshift-gtk";
       };
 
       set-background = template {
