@@ -32,7 +32,10 @@ main = do
         , updateRateLimitMicroseconds = 200000
         }
       workspaces = workspacesNew myWorkspacesConfig
-      clock = textClockNew Nothing "%a %b %_d %r" 1
+      clock = textClockNewWith
+                defaultClockConfig { clockUpdateStrategy = RoundedTargetInterval 60 0.0
+                                   , clockFormatString = "%a %b %_d %R"
+                                   }
       layout = layoutNew defaultLayoutConfig
       windows = windowsNew defaultWindowsConfig
           -- See https://github.com/taffybar/gtk-sni-tray#statusnotifierwatcher
