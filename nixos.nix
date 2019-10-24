@@ -6,9 +6,9 @@ let
     inherit pkgs;
   };*/
 
-  haskellPackages =
-    let pkgs2 = import ./nixpkgs.nix {};
-    in pkgs.callPackage (import ./default.nix) { haskellPackages = pkgs.haskell.packages.ghc864;};
+  haskellPackages = pkgs.callPackage (import ./default.nix) {
+    haskellPackages = pkgs.haskellPackages;
+  };
 
 in {
   environment.systemPackages = with pkgs; [
@@ -20,17 +20,19 @@ in {
   services.arbtt.package = pkgs.haskell.lib.doJailbreak pkgs.haskellPackages.arbtt;
 
   services.geoclue2.enable = true;
+  location = {
+    provider = "manual";
+    latitude  = 43.0755;
+    longitude = -70.760;
+  };
   services.redshift = {
     enable = true;
-    provider = "manual";
-    latitude  = "43.0755";
-    longitude = "-70.760";
   };
 
   services.compton = {
     enable = true;
-    #backend = "glx";
-    #vSync = "opengl";
+    backend = "glx";
+    vSync = true;
     #extraOptions = ''
     #  # Otherwise emacs fails to redraw
     #  xrender-sync = true;
