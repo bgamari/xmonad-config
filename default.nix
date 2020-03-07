@@ -13,13 +13,6 @@ let
   libgtk3 = gtk3;
   libcairo = cairo;
 
-  gtk2hs-src = fetchFromGitHub {
-    owner = "gtk2hs";
-    repo = "gtk2hs";
-    rev = "7bccd432e2f962d80b2b804fa2a59712e402753c";
-    sha256 = "0jxl55ywancz6wxvzx513bywi5gqyn1zk2l0vp707r08ygprrjij";
-  };
-
   all-cabal-hashes = 
     let rev = "ee621f2f8401141df90c62a3d18a686e3efd7407";
     in fetchurl {
@@ -27,8 +20,8 @@ let
       sha256 = "1474sy5kzxv78mkkfnzsxp5is8xcv0ijqyxc6633am7471mr50mw";
     };
 
-  haskellPkgs = haskellPackages.override {
-    inherit all-cabal-hashes;
+  haskellPkgs = haskell.packages.ghc883.override {
+    #inherit all-cabal-hashes;
 
     overrides = self: super: rec {
       # Xmonad
@@ -42,7 +35,11 @@ let
 
       xmonad-contrib = self.callCabal2nix "xmonad-contrib" ./xmonad-contrib {};
       xmonad-ben = self.callCabal2nix "xmonad-ben" ./xmonad-ben {};
-      inherit (import ./taffybar-ben { gtk3 = libgtk3; haskellLib = haskell.lib; haskellPackages = self; })
+      inherit (import ./taffybar-ben {
+        gtk3 = libgtk3;
+        haskellLib = haskell.lib;
+        haskellPackages = self;
+      })
         taffybar taffybar-ben;
     };
   };
