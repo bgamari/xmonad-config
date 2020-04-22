@@ -15,7 +15,7 @@ flag dbus
 executable xmonad-ben
   main-is:             xmonad.hs
   other-extensions:    OverloadedStrings
-  build-depends:       base >=4.7 && <4.13,
+  build-depends:       base >=4.7 && <4.15,
                        transformers >=0.4 && <0.6,
                        errors >=1.4 && <3.0,
                        stm >=2.4 && <2.6,
