@@ -1,13 +1,9 @@
 { config, pkgs, ... }:
 
 let
-  /*hamsterPackages = pkgs.callPackage (import ./hamster.nix) {
-    pythonPackages = pkgs.python3Packages;
-    inherit pkgs;
-  };*/
-
-  haskellPackages = pkgs.callPackage (import ./default.nix) {
-    haskellPackages = pkgs.haskellPackages;
+  nixpkgs = import ./nixpkgs.nix {};
+  haskellPackages = nixpkgs.callPackage (import ./default.nix) {
+    haskellPackages = nixpkgs.haskellPackages;
   };
 
 in {
