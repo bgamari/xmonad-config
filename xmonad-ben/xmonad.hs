@@ -86,11 +86,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_F4    ), spawn "emacsclient -c .")
     , ((modm              , xK_F5    ), spawn "emacsclient -c -e \"(notmuch)\"")
 
-    -- launch dmenu
-    , ((modm,               xK_p     ), spawn "exe=`dmenu_path | dmenu` && eval \"exec $exe\"")
-
-    -- launch gmrun
-    , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
+    -- launcher
+    , ((modm .|. shiftMask, xK_p     ), spawn "rofi -show run -monitor -1")
+    , ((modm .|. shiftMask, xK_l     ), spawn "rofi -show window -monitor -1")
+    , ((modm .|. shiftMask, xK_s     ), spawn "rofi -show ssh -monitor -1 -terminal gnome-terminal")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)

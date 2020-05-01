@@ -8,7 +8,7 @@ let
 
 in {
   environment.systemPackages = with pkgs; [
-    neovim-qt gmrun gnome3.gnome_session xorg.xmessage mattermost-desktop
+    neovim-qt rofi gnome3.gnome_session xorg.xmessage mattermost-desktop
   ];
 
   services.gnome3.gnome-keyring.enable = true;
