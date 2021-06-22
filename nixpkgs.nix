@@ -4,7 +4,7 @@ let src = nixpkgs.fetchFromGitHub {
   name = "nixpkgs";
   owner = "nixos";
   repo = "nixpkgs";
-  rev = "c47830563954d4ab4e593a9db6275ce828497f52";
-  sha256 = "1xqcwzyzimay2kh8nqabi5b0ly3lc50c0w6asqjl0g97nckr2fj0";
+  rev = "5b09b92a16f2bafbfcba4fbdfe7084a2b2d97d75";
+  sha256 = "0x1ar1wlay432hd5a5zd2h80ld5xj2qpxg6ak42jlsvpi5mmdbmw";
 };
 in import src {}

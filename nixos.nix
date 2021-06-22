@@ -1,9 +1,10 @@
 { config, pkgs, ... }:
 
 let
-  nixpkgs = import ./nixpkgs.nix {};
+  #nixpkgs = import ./nixpkgs.nix {};
+  nixpkgs = import <nixpkgs> {};
   haskellPackages = nixpkgs.callPackage (import ./default.nix) {
-    haskellPackages = nixpkgs.haskellPackages;
+    haskellPackages = nixpkgs.haskell.packages.ghc882;
   };
 
 in {
@@ -12,7 +13,7 @@ in {
   ];
 
   services.gnome3.gnome-keyring.enable = true;
-  services.arbtt.enable = true;
+  #services.arbtt.enable = true;
   services.arbtt.package = pkgs.haskell.lib.doJailbreak pkgs.haskellPackages.arbtt;
 
   services.geoclue2.enable = true;
