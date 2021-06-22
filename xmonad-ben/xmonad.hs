@@ -52,8 +52,8 @@ import DBus.Client
 pagerHints = id
 #endif
 
---myTerminal      = "konsole"
-myTerminal      = "gnome-terminal"
+myTerminal      = "konsole"
+--myTerminal      = "gnome-terminal"
 myBrowser       = "firefox"
 
 myFocusFollowsMouse :: Bool
@@ -82,7 +82,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch browser
     , ((modm              , xK_F2    ), spawn myBrowser)
 
-    , ((modm              , xK_F3    ), spawn "nautilus -w .")
+    , ((modm              , xK_F3    ), spawn "dolphin .")
     , ((modm              , xK_F4    ), spawn "emacsclient -c .")
     , ((modm              , xK_F5    ), spawn "emacsclient -c -e \"(notmuch)\"")
 
@@ -374,29 +374,30 @@ main = do
 #ifdef DBUS
     dbus <- runMaybeT $ hushT $ tryIO $ connectSession
 #endif
-    let pp = defaultPP
+    let xconfig = 
+          ewmh $ pagerHints
+          $ withUrgencyHook NoUrgencyHook
+          $ def {
+          -- simple stuff
+            terminal           = myTerminal,
+            focusFollowsMouse  = myFocusFollowsMouse,
+            borderWidth        = myBorderWidth,
+            modMask            = myModMask,
+            workspaces         = myWorkspaces,
+            normalBorderColor  = myNormalBorderColor,
+            focusedBorderColor = myFocusedBorderColor,
 
-    xmonad
-      $ ewmh $ pagerHints
-      $ withUrgencyHook NoUrgencyHook
-      $ def {
-      -- simple stuff
-        terminal           = myTerminal,
-        focusFollowsMouse  = myFocusFollowsMouse,
-        borderWidth        = myBorderWidth,
-        modMask            = myModMask,
-        workspaces         = myWorkspaces,
-        normalBorderColor  = myNormalBorderColor,
-        focusedBorderColor = myFocusedBorderColor,
+          -- key bindings
+            keys               = \c->myKeys c <> mediaKeys <> volumeKeys <> brightnessKeys,
+            mouseBindings      = myMouseBindings,
 
-      -- key bindings
-        keys               = \c->myKeys c <> mediaKeys <> volumeKeys <> brightnessKeys,
-        mouseBindings      = myMouseBindings,
+          -- hooks, layouts
+            layoutHook         = avoidStruts $ myLayout,
+            manageHook         = manageDocks <+> myManageHook,
+            handleEventHook    = docksEventHook,
+            logHook            = return (),
+            startupHook        = docksStartupHook >> myStartupHook
+        }
 
-      -- hooks, layouts
-        layoutHook         = avoidStruts $ myLayout,
-        manageHook         = manageDocks <+> myManageHook,
-        handleEventHook    = docksEventHook,
-        logHook            = return (),
-        startupHook        = docksStartupHook >> myStartupHook
-    }
+    dirs <- getDirectories
+    launch xconfig dirs

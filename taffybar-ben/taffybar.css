@@ -53,11 +53,11 @@
 }
 
 .active .contents {
-	background-color: rgba(0.0, 0.0, 0.0, 0.5);
+	background-color: rgba(0.0, 0.0, 0.5, 0.8);
 }
 
 .visible .contents {
-	background-color: rgba(0.0, 0.0, 0.0, 0.2);
+	background-color: rgba(0.0, 0.0, 0.2, 0.8);
 }
 
 .window-icon-container {

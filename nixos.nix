@@ -29,7 +29,7 @@ in {
   services.compton = {
     enable = true;
     backend = "glx";
-    vSync = true;
+    #vSync = true;
     #extraOptions = ''
     #  # Otherwise emacs fails to redraw
     #  xrender-sync = true;
@@ -95,6 +95,7 @@ in {
       };
 
       blueman-applet = template {
+        enable = false;
         description = "blueman";
         script = "${pkgs.blueman}/bin/blueman-applet --indicator";
       };

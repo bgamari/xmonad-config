@@ -15,10 +15,10 @@ let
   libcairo = cairo;
 
   all-cabal-hashes = 
-    let rev = "38b1fe33b6f370c30a04ae7522f6a5c818472aff";
+    let rev = "7575a8b1fe6db99da6525563957514c19186fdc6";
     in fetchurl {
       url    = "https://github.com/commercialhaskell/all-cabal-hashes/archive/${rev}.tar.gz";
-      sha256 = "sha256:1vz8s1d7smz42x8sbzybaixmn7bnyv5y4qwk35m3mk9wbmxzq0yf";
+      sha256 = "sha256:1pc7lz2h5c4nkky5bf00hra443kk482gw3x09hzlf4s3178mq77f";
     };
 
   haskellPkgs = haskellPackages.override {
@@ -33,19 +33,11 @@ let
         name = "xmonad";
         owner = "xmonad";
         repo = "xmonad";
-        rev = "bb13853929f8f6fc59b526bcc10631e1bac309ad";
-        sha256 = "1f2w0vkv4i40sa52d0bxdhmn9zsikzymm91xwdi4m64nqwip1i97";
-      }) {};
+        rev = "6a7eb85e84ddc2091706fbce5ff293e859481e51";
+        sha256 = "sha256:12lsa0008jij5p76f3g0b36bqjs72hpbln4yzfb330pz4zmkhxwq";
+      }) { };
 
-      gi-cairo-connector = callHackage "gi-cairo-connector" "0.1.0" {};
-      gi-cairo-render = callHackage "gi-cairo-render" "0.1.0" { inherit cairo; };
-      gi-gdkx11 = callHackage "gi-gdkx11" "3.0.10" { inherit gtk3; };
-      gi-xlib = callHackage "gi-xlib" "2.0.9" { };
-      gi-gtk-hs = callHackage "gi-gtk-hs" "0.3.9" { };
-      gtk-sni-tray = unmarkBroken super.gtk-sni-tray;
-      gi-dbusmenugtk3 = callHackage "gi-dbusmenugtk3" "0.4.9" { inherit gtk3; };
-      gi-dbusmenu = callHackage "gi-dbusmenu" "0.4.8" {};
-      gtk-strut   = unmarkBroken super.gtk-strut  ;
+      X11 = callHackage "X11" "1.10" {};
 
       xmonad-contrib = self.callCabal2nix "xmonad-contrib" ./xmonad-contrib {};
       xmonad-ben = self.callCabal2nix "xmonad-ben" ./xmonad-ben {};

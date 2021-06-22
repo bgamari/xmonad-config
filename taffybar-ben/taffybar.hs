@@ -15,7 +15,9 @@ import System.Log.Logger
 import Paths_taffybar_ben ( getDataDir )
 
 main = do
-  cssPath <- (</> "taffybar.css") <$> getDataDir
+  --cssPath <- (</> "taffybar.css") <$> getDataDir
+  let cssPath = "/home/ben/.xmonad/taffybar-ben/taffybar.css"
+  print cssPath
   let myWorkspacesConfig =
         defaultWorkspacesConfig
         { minIcons = 0
