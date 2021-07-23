@@ -18,6 +18,7 @@ import qualified Data.Map        as M
 import XMonad.Util.Run
 import XMonad.Prompt
 import XMonad.Prompt.Unicode
+import XMonad.Prompt.Window
 
 import XMonad.Layout.LimitWindows
 import XMonad.Layout.WorkspaceDir
@@ -181,6 +182,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Unicode character search
     , ((modm .|. controlMask, xK_u      ), unicodePrompt "> " myXPConfig)
+
+    -- Find window
+    , ((modm              , xK_g        ), windowPrompt myXPConfig Goto allWindows)
 
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io $ do spawn "gnome-session-quit --logout --no-prompt"
