@@ -13,7 +13,7 @@ executable taffybar-ben
   main-is:             taffybar.hs
   ghc-options:         -threaded "-with-rtsopts=-I0 -V0 -qg -s" -rtsopts
   other-modules:       Paths_taffybar_ben
-  build-depends:       base >=4.9 && <4.15,
+  build-depends:       base,
                        mtl,
                        text,
                        filepath,

@@ -55,9 +55,9 @@ main = do
           ]
         , barPosition = Top
         , barPadding = 0
-        , barHeight = 25
+        , barHeight = ExactSize 25
         , widgetSpacing = 0
-        , cssPath = Just cssPath
+        , cssPaths = [cssPath]
         }
   --dyreTaffybar $ withBatteryRefresh $ withLogServer $ withToggleServer $
   --             toTaffyConfig myConfig

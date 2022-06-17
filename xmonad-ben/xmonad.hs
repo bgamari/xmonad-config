@@ -234,12 +234,6 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- restarting (with 'mod-q') to reset your layout state to the new
 -- defaults, as xmonad preserves your old layout settings by default.
 --
--- * NOTE: XMonad.Hooks.EwmhDesktops users must remove the obsolete
--- ewmhDesktopsLayout modifier from layoutHook. It no longer exists.
--- Instead use the 'ewmh' function from that module to modify your
--- defaultConfig as a whole. (See also logHook, handleEventHook, and
--- startupHook ewmh notes.)
---
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
 --
@@ -294,11 +288,6 @@ myManageHook = composeAll
 -- per-workspace layout choices.
 --
 -- By default, do nothing.
---
--- * NOTE: EwmhDesktops users should use the 'ewmh' function from
--- XMonad.Hooks.EwmhDesktops to modify their defaultConfig as a whole.
--- It will add initialization of EWMH support to your custom startup
--- hook by combining it with ewmhDesktopsStartup.
 --
 myStartupHook = return ()
 
